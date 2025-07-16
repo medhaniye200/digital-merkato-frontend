@@ -4,7 +4,6 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { getDecodedToken } from "../../utils/auth"; // ✅ works with baseUrl config or Next.js alias
 
-
 function parseJwt(token) {
   try {
     const base64Url = token.split(".")[1];
@@ -34,7 +33,7 @@ export default function Login() {
     setLoading(true);
 
     try {
-      const res = await fetch("http://192.168.1.6:8000/api/token/", {
+      const res = await fetch("https:/api.digitalmerkato.com.et/api/token", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password }),
@@ -49,7 +48,7 @@ export default function Login() {
 
       if (decoded?.role === "admin") {
         localStorage.setItem("accessToken", data.access);
-        console.log("succed")
+        console.log("succed");
         router.push("/admin");
       } else {
         setError("You do not have admin access");
@@ -93,16 +92,15 @@ export default function Login() {
         </button>
       </form>
       <p style={{ textAlign: "center", marginTop: "1rem" }}>
-        Don't have an account?{" "}
         <a
-          href="/signup"
+          href="/"
           style={{
             color: "#0070f3",
             textDecoration: "none",
             fontWeight: "600",
           }}
         >
-          Sign up here
+          forget password
         </a>
       </p>
     </div>

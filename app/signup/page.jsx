@@ -17,7 +17,8 @@ export default function SignupForm() {
       body: JSON.stringify({ username, password }),
     });
 
-    if (res.ok) {
+    if (res.ok) 
+      {
       alert("Signup successful. Please log in.");
       router.push("/login");
     } else {

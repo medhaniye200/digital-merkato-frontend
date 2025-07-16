@@ -1,8 +1,10 @@
+
+
 "use client";
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import {jwtDecode} from "jwt-decode"; // <-- default import, no {}
+import { jwtDecode } from "jwt-decode"; // ✅ Correct import
 
 import ServiceManager from "./ServiceManager";
 import ProjectManager from "./ProjectManager";
@@ -12,6 +14,7 @@ export default function AdminPage() {
   const router = useRouter();
   const [authorized, setAuthorized] = useState(false);
   const [loading, setLoading] = useState(true);
+  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
@@ -29,14 +32,21 @@ export default function AdminPage() {
       console.log("Current time (seconds):", now);
       console.log("Token expiration time:", decoded.exp);
 
-      if (decoded.role=="admin") {
-        router.push("/admin");
+      if (decoded.exp < now) {
+        // Token is expired
+        console.warn("Token expired");
+        localStorage.removeItem("accessToken");
+        router.push("/login");
+        return;
+      }
+
+      if (decoded.role === "admin") {
         setAuthorized(true);
-      } else if (decoded.role !== "admin") {
+      } else {
         console.warn("Not an admin:", decoded.role);
         localStorage.removeItem("accessToken");
         router.push("/login");
-      } 
+      }
     } catch (error) {
       console.error("Invalid token:", error);
       localStorage.removeItem("accessToken");
@@ -58,3 +68,4 @@ export default function AdminPage() {
     </main>
   );
 }
+

@@ -9,7 +9,7 @@ export default function ServiceManager() {
   const [preview, setPreview] = useState(null);
   const [editId, setEditId] = useState(null);
   const [token, setToken] = useState(null);
-  const backendUrl = "http://192.168.1.6:8000";
+  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
   const router = useRouter();
 
   const getImageUrl = (path) => {
@@ -299,3 +299,4 @@ const styles = {
     cursor: "pointer",
   },
 };
+

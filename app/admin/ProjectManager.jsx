@@ -9,7 +9,7 @@ export default function ProjectManager() {
   const [editId, setEditId] = useState(null);
   const [token, setToken] = useState(null); // New state for token
 
-  const backendUrl = "http://192.168.1.6:8000";
+  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
   const getImageUrl = (path) => {
     if (!path) return "";
@@ -282,3 +282,4 @@ const styles = {
     cursor: "pointer",
   },
 };
+
