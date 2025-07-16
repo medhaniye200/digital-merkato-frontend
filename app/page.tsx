@@ -130,7 +130,7 @@ export default function Home() {
         <div className="hero-container">
           <div className="hero-text">
             <h2>
-              Digital Merkato transforms ideas into innovative{" "}
+              Digital Merkato digitalizes ideas into local{" "}
               <span>business systems</span>
             </h2>
             <p>Digital solutions for modern businesses in Ethiopia.</p>

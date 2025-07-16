@@ -4,36 +4,29 @@ import { useState, useEffect } from "react";
 
 export default function MemberManager() {
   const [members, setMembers] = useState([]);
-  const [form, setForm] = useState({
-    full_name: "",
-    position: "",
-    image: null,
-  });
+  const [form, setForm] = useState({ full_name: "", position: "", image: null });
   const [preview, setPreview] = useState(null);
   const [editId, setEditId] = useState(null);
   const [token, setToken] = useState(null);
-  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+
+  const backendUrl = "http://192.168.1.11:8000";
+
+  // Load token from localStorage
+  useEffect(() => {
+    const storedToken = localStorage.getItem("accessToken"); // adjust key if needed
+    setToken(storedToken);
+
+    fetch(`${backendUrl}/api/staff-members/list/`)
+      .then((res) => res.json())
+      .then(setMembers)
+      .catch((err) => console.error("Fetch error:", err));
+  }, []);
 
   const getImageUrl = (path) => {
     if (!path) return "";
     if (path.startsWith("http")) return path;
     return `${backendUrl}/media/${path.replace(/^\/?media\/?/, "")}`;
   };
-
-  useEffect(() => {
-    const storedToken = localStorage.getItem("accessToken");
-    setToken(storedToken);
-
-    fetch(`${backendUrl}/api/staff-members/list`, {
-      headers: { Authorization: `Bearer ${storedToken}` },
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error("Failed to fetch members");
-        return res.json();
-      })
-      .then(setMembers)
-      .catch((err) => console.error("Fetch error:", err));
-  }, []);
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
@@ -58,7 +51,7 @@ export default function MemberManager() {
 
     try {
       const res = await fetch(
-        `${backendUrl}/api/staff-members/${editId ? `${editId}/` : ""}`,
+        `${backendUrl}/api/staff-members/list/${editId ? `${editId}/` : ""}`,
         {
           method: editId ? "PUT" : "POST",
           headers: {
@@ -71,6 +64,7 @@ export default function MemberManager() {
       if (!res.ok) throw new Error("Failed to save member");
 
       const updated = await res.json();
+
       if (editId) {
         setMembers((prev) =>
           prev.map((m) => (m.id === updated.id ? updated : m))
@@ -93,8 +87,11 @@ export default function MemberManager() {
       position: member.position,
       image: null,
     });
+    
     setPreview(getImageUrl(member.image_icon));
+
     setEditId(member.id);
+
   };
 
   const handleDelete = async (id) => {
@@ -140,7 +137,7 @@ export default function MemberManager() {
             />
           </div>
           <div style={styles.inputGroup}>
-            <label style={styles.label}>Image</label>
+            <label style={styles.label}>Photo</label>
             <input
               type="file"
               name="image"
@@ -154,8 +151,8 @@ export default function MemberManager() {
           <img
             src={preview}
             width="80"
-            alt="Preview"
             style={{ marginTop: "0.5rem", borderRadius: "8px" }}
+            alt="Preview"
           />
         )}
         <button type="submit" style={styles.button}>
@@ -178,20 +175,20 @@ export default function MemberManager() {
               <td style={styles.td}>
                 <img
                   src={getImageUrl(m.image_icon)}
-                  width="60"
+                  width="50"
+                  style={{ borderRadius: "50%" }}
                   alt={m.full_name}
-                  style={{ borderRadius: "8px" }}
                 />
               </td>
               <td style={styles.td}>{m.full_name}</td>
               <td style={styles.td}>{m.position}</td>
               <td style={styles.td}>
-                <button onClick={() => handleEdit(m)} style={styles.editButton}>
+                <button onClick={() => handleEdit(m)} style={styles.editBtn}>
                   Edit
                 </button>
                 <button
                   onClick={() => handleDelete(m.id)}
-                  style={styles.deleteButton}
+                  style={styles.deleteBtn}
                 >
                   Delete
                 </button>
@@ -267,7 +264,7 @@ const styles = {
     padding: "0.75rem",
     borderBottom: "1px solid #ddd",
   },
-  editButton: {
+  editBtn: {
     marginRight: "0.5rem",
     backgroundColor: "#17a2b8",
     color: "#fff",
@@ -276,7 +273,7 @@ const styles = {
     borderRadius: "4px",
     cursor: "pointer",
   },
-  deleteButton: {
+  deleteBtn: {
     backgroundColor: "#dc3545",
     color: "#fff",
     border: "none",
