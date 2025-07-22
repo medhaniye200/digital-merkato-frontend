@@ -1,0 +1,37 @@
+.tabSection {
+  margin-bottom: 20px;
+}
+
+.tabTitle {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: #1a1a1a;
+}
+
+.tabContent {
+  padding: 15px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  background-color: #fafafa;
+}
+
+.filterTabs {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.filterTabs label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.9rem;
+  color: #374151;
+}
+
+.notificationList {
+  padding: 15px;
+  background-color: #f9f9f9;
+  border-radius: 4px;
+}

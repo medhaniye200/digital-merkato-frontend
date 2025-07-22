@@ -1,0 +1,159 @@
+/* app/admin/messages/AdminMessages.module.css */
+
+.adminContainer {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+  min-height: 80vh;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.messageCount {
+  background: #3182ce;
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+}
+
+.messagesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 1.5rem;
+}
+
+.messageCard {
+  background: white;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border-left: 4px solid #3182ce;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.messageCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.messageCard.read {
+  opacity: 0.8;
+  border-left-color: #a0aec0;
+}
+
+.messageHeader {
+  margin-bottom: 1rem;
+}
+
+.messageHeader h3 {
+  margin: 0 0 0.25rem 0;
+  font-size: 1.125rem;
+  color: #2d3748;
+}
+
+.messageEmail {
+  display: block;
+  color: #3182ce;
+  font-size: 0.875rem;
+  margin-bottom: 0.5rem;
+  text-decoration: none;
+}
+
+.messageEmail:hover {
+  text-decoration: underline;
+}
+
+.messageDate {
+  display: block;
+  font-size: 0.75rem;
+  color: #718096;
+}
+
+.messageBody {
+  color: #4a5568;
+  line-height: 1.6;
+}
+
+.messageSubject {
+  margin: 0 0 0.5rem 0;
+  font-weight: 500;
+}
+
+.messageContent {
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+.loadingState,
+.errorState,
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  text-align: center;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  border-radius: 50%;
+  border-top-color: #3182ce;
+  animation: spin 1s ease-in-out infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.errorState {
+  color: #e53e3e;
+}
+
+.retryButton {
+  margin-top: 1rem;
+  padding: 0.5rem 1rem;
+  background: #3182ce;
+  color: white;
+  border: none;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.retryButton:hover {
+  background: #2c5282;
+}
+
+.emptyState {
+  color: #718096;
+  font-size: 1.125rem;
+}
+
+@media (max-width: 768px) {
+  .adminContainer {
+    padding: 1.5rem 1rem;
+  }
+  
+  .messagesGrid {
+    grid-template-columns: 1fr;
+  }
+  
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+}

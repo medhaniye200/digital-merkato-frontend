@@ -1,32 +1,59 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import styles from "./MemberManager.module.css";
 
 export default function MemberManager() {
   const [members, setMembers] = useState([]);
-  const [form, setForm] = useState({ full_name: "", position: "", image: null });
+  const [form, setForm] = useState({
+    full_name: "",
+    position: "",
+    image: null,
+  });
   const [preview, setPreview] = useState(null);
   const [editId, setEditId] = useState(null);
   const [token, setToken] = useState(null);
-
-  const backendUrl = "http://192.168.1.11:8000";
-
-  // Load token from localStorage
-  useEffect(() => {
-    const storedToken = localStorage.getItem("accessToken"); // adjust key if needed
-    setToken(storedToken);
-
-    fetch(`${backendUrl}/api/staff-members/list/`)
-      .then((res) => res.json())
-      .then(setMembers)
-      .catch((err) => console.error("Fetch error:", err));
-  }, []);
+  const [status, setStatus] = useState({ message: "", type: "" });
+  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+  const router = useRouter();
 
   const getImageUrl = (path) => {
     if (!path) return "";
     if (path.startsWith("http")) return path;
     return `${backendUrl}/media/${path.replace(/^\/?media\/?/, "")}`;
   };
+
+  useEffect(() => {
+    const storedToken = localStorage.getItem("accessToken");
+    setToken(storedToken);
+
+    fetch(`${backendUrl}/api/staff-members/list`, {
+      headers: { Authorization: `Bearer ${storedToken}` },
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to fetch members");
+        return res.json();
+      })
+      .then((data) => {
+        console.log("Fetched member data:", data); // ✅ Inspect structure
+
+        // Try different property names depending on the backend response
+        const membersArray = Array.isArray(data)
+          ? data
+          : data.results || data.data || [];
+
+        if (!Array.isArray(membersArray)) {
+          throw new Error("Fetched data is not an array");
+        }
+
+        setMembers(membersArray);
+      })
+      .catch((err) => {
+        console.error("Fetch error:", err);
+        setStatus({ message: "Failed to load team members", type: "error" });
+      });
+  }, []);
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
@@ -40,7 +67,10 @@ export default function MemberManager() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!token) return alert("You are not authenticated.");
+    if (!token) {
+      setStatus({ message: "You are not authenticated", type: "error" });
+      return;
+    }
 
     const formData = new FormData();
     formData.append("full_name", form.full_name);
@@ -51,7 +81,11 @@ export default function MemberManager() {
 
     try {
       const res = await fetch(
-        `${backendUrl}/api/staff-members/list/${editId ? `${editId}/` : ""}`,
+        `${backendUrl}${
+          editId
+            ? `/api/staff-members/update/${editId}/`
+            : `/api/staff-members/`
+        }`,
         {
           method: editId ? "PUT" : "POST",
           headers: {
@@ -64,20 +98,25 @@ export default function MemberManager() {
       if (!res.ok) throw new Error("Failed to save member");
 
       const updated = await res.json();
-
       if (editId) {
         setMembers((prev) =>
           prev.map((m) => (m.id === updated.id ? updated : m))
         );
         setEditId(null);
+        setStatus({ message: "Member updated successfully", type: "success" });
       } else {
         setMembers((prev) => [...prev, updated]);
+        setStatus({ message: "Member added successfully", type: "success" });
       }
 
       setForm({ full_name: "", position: "", image: null });
       setPreview(null);
     } catch (err) {
       console.error("Submit error:", err.message);
+      setStatus({
+        message: err.message || "Failed to save member",
+        type: "error",
+      });
     }
   };
 
@@ -87,198 +126,144 @@ export default function MemberManager() {
       position: member.position,
       image: null,
     });
-    
     setPreview(getImageUrl(member.image_icon));
-
     setEditId(member.id);
-
+    setStatus({ message: "", type: "" });
   };
 
   const handleDelete = async (id) => {
-    if (!token) return alert("You are not authenticated.");
+    if (!token) {
+      setStatus({ message: "You are not authenticated", type: "error" });
+      return;
+    }
 
-    const res = await fetch(`${backendUrl}/api/staff-members/delete/${id}/`, {
-      method: "DELETE",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    try {
+      const res = await fetch(`${backendUrl}/api/staff-members/delete/${id}/`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-    if (res.ok) {
-      setMembers((prev) => prev.filter((m) => m.id !== id));
+      if (res.ok) {
+        setMembers((prev) => prev.filter((m) => m.id !== id));
+        setStatus({ message: "Member deleted successfully", type: "success" });
+      } else {
+        throw new Error("Failed to delete member");
+      }
+    } catch (err) {
+      console.error("Delete error:", err.message);
+      setStatus({
+        message: err.message || "Failed to delete member",
+        type: "error",
+      });
     }
   };
 
   return (
-    <div style={styles.container}>
-      <h2 style={styles.header}>Manage Team Members</h2>
-      <form onSubmit={handleSubmit} style={styles.form}>
-        <div style={styles.inputRow}>
-          <div style={styles.inputGroup}>
-            <label style={styles.label}>Full Name</label>
+    <div className={styles.container}>
+      <div className={styles.headerRow}></div>
+
+      {status.message && (
+        <div
+          className={`${styles.statusMessage} ${
+            styles[`${status.type}Message`]
+          }`}
+        >
+          {status.message}
+        </div>
+      )}
+
+      <form onSubmit={handleSubmit} className={styles.form}>
+        <div className={styles.inputRow}>
+          <div className={styles.inputGroup}>
+            <label className={styles.label}>Full Name</label>
             <input
               name="full_name"
               value={form.full_name}
               onChange={handleChange}
               placeholder="Full name"
-              style={styles.input}
+              className={styles.input}
               required
             />
           </div>
-          <div style={styles.inputGroup}>
-            <label style={styles.label}>Position</label>
+          <div className={styles.inputGroup}>
+            <label className={styles.label}>Position</label>
             <input
               name="position"
               value={form.position}
               onChange={handleChange}
               placeholder="Position"
-              style={styles.input}
+              className={styles.input}
               required
             />
           </div>
-          <div style={styles.inputGroup}>
-            <label style={styles.label}>Photo</label>
+          <div className={styles.inputGroup}>
+            <label className={styles.label}>Image</label>
             <input
               type="file"
               name="image"
               accept="image/*"
               onChange={handleChange}
-              style={styles.inputFile}
+              className={styles.inputFile}
             />
           </div>
         </div>
+
         {preview && (
-          <img
-            src={preview}
-            width="80"
-            style={{ marginTop: "0.5rem", borderRadius: "8px" }}
-            alt="Preview"
-          />
+          <div className={styles.previewContainer}>
+            <img src={preview} alt="Preview" className={styles.previewImage} />
+          </div>
         )}
-        <button type="submit" style={styles.button}>
-          {editId ? "Update" : "Add"} Member
+
+        <button type="submit" className={styles.submitButton}>
+          {editId ? "Update Member" : "Add New Member"}
         </button>
       </form>
 
-      <table style={styles.table}>
-        <thead>
-          <tr>
-            <th style={styles.th}>Image</th>
-            <th style={styles.th}>Name</th>
-            <th style={styles.th}>Position</th>
-            <th style={styles.th}>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {members.map((m) => (
-            <tr key={m.id}>
-              <td style={styles.td}>
-                <img
-                  src={getImageUrl(m.image_icon)}
-                  width="50"
-                  style={{ borderRadius: "50%" }}
-                  alt={m.full_name}
-                />
-              </td>
-              <td style={styles.td}>{m.full_name}</td>
-              <td style={styles.td}>{m.position}</td>
-              <td style={styles.td}>
-                <button onClick={() => handleEdit(m)} style={styles.editBtn}>
-                  Edit
-                </button>
-                <button
-                  onClick={() => handleDelete(m.id)}
-                  style={styles.deleteBtn}
-                >
-                  Delete
-                </button>
-              </td>
+      <div className={styles.tableContainer}>
+        <table className={styles.table}>
+          <thead>
+            <tr>
+              <th className={styles.th}>Image</th>
+              <th className={styles.th}>Name</th>
+              <th className={styles.th}>Position</th>
+              <th className={styles.th}>Actions</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {members.map((m) => (
+              <tr key={m.id} className={styles.tr}>
+                <td className={styles.td}>
+                  <img
+                    src={getImageUrl(m.image_icon)}
+                    alt={m.full_name}
+                    className={styles.tableImage}
+                  />
+                </td>
+                <td className={styles.td}>{m.full_name}</td>
+                <td className={styles.td}>{m.position}</td>
+                <td className={styles.td}>
+                  <div className={styles.actionButtons}>
+                    <button
+                      onClick={() => handleEdit(m)}
+                      className={styles.editButton}
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => handleDelete(m.id)}
+                      className={styles.deleteButton}
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
-
-const styles = {
-  container: {
-    padding: "2rem",
-    border: "1px solid #ccc",
-    borderRadius: "12px",
-    marginBottom: "3rem",
-  },
-  header: {
-    textAlign: "center",
-    fontSize: "1.8rem",
-    marginBottom: "1.5rem",
-  },
-  form: {
-    marginBottom: "2rem",
-  },
-  inputRow: {
-    display: "flex",
-    gap: "1.5rem",
-    flexWrap: "wrap",
-    marginBottom: "1rem",
-  },
-  inputGroup: {
-    display: "flex",
-    flexDirection: "column",
-    flex: 1,
-  },
-  label: {
-    marginBottom: "0.5rem",
-    fontWeight: "600",
-  },
-  input: {
-    padding: "0.6rem",
-    border: "1px solid #ccc",
-    borderRadius: "6px",
-  },
-  inputFile: {
-    padding: "0.3rem",
-    border: "1px solid #ccc",
-    borderRadius: "6px",
-  },
-  button: {
-    marginTop: "1rem",
-    backgroundColor: "#0070f3",
-    color: "#fff",
-    border: "none",
-    padding: "0.8rem 2rem",
-    borderRadius: "6px",
-    fontWeight: "600",
-    cursor: "pointer",
-  },
-  table: {
-    width: "100%",
-    borderCollapse: "collapse",
-  },
-  th: {
-    textAlign: "left",
-    padding: "0.75rem",
-    backgroundColor: "#f5f5f5",
-  },
-  td: {
-    padding: "0.75rem",
-    borderBottom: "1px solid #ddd",
-  },
-  editBtn: {
-    marginRight: "0.5rem",
-    backgroundColor: "#17a2b8",
-    color: "#fff",
-    border: "none",
-    padding: "0.4rem 1rem",
-    borderRadius: "4px",
-    cursor: "pointer",
-  },
-  deleteBtn: {
-    backgroundColor: "#dc3545",
-    color: "#fff",
-    border: "none",
-    padding: "0.4rem 1rem",
-    borderRadius: "4px",
-    cursor: "pointer",
-  },
-};

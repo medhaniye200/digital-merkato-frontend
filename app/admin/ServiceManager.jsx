@@ -1,36 +1,112 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import styles from "./ServiceManager.module.css";
 
 export default function ServiceManager() {
   const [services, setServices] = useState([]);
   const [form, setForm] = useState({ title: "", description: "", image: null });
   const [preview, setPreview] = useState(null);
   const [editId, setEditId] = useState(null);
-  const [token, setToken] = useState(null);
-  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
-  const router = useRouter();
+  const [status, setStatus] = useState({ message: "", type: "" });
+  const [loading, setLoading] = useState(false);
+  const [formErrors, setFormErrors] = useState({});
 
-  const getImageUrl = (path) => {
-    if (!path) return "";
-    if (path.startsWith("http")) return path;
-    return `${backendUrl}/media/${path.replace(/^\/?media\/?/, "")}`;
+  const backendUrl =
+    process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
+
+  const getToken = () => {
+    const token = localStorage.getItem("accessToken");
+    console.log(
+      "🔐 Access Token from localStorage:",
+      token ? "Found" : "Not found"
+    );
+    return token;
   };
 
-  useEffect(() => {
-    const storedToken = localStorage.getItem("accessToken");
-    setToken(storedToken);
+  const getImageUrl = (path) => {
+    if (!path) {
+      console.log("⚠️ Image path is empty or null");
+      return null;
+    }
+    if (path.startsWith("http")) {
+      console.log("🌐 Absolute image URL:", path);
+      return path;
+    }
+    const normalizedPath = path.replace(/^\/?media\/?/, "");
+    const fullUrl = `${backendUrl}/media/${normalizedPath}`;
+    console.log("🖼️ Constructed image URL:", fullUrl);
+    return fullUrl;
+  };
 
-    fetch(`${backendUrl}/api/services/list/`)
-      .then((res) => res.json())
-      .then(setServices)
-      .catch((err) => console.error("Fetch error:", err));
-  }, []);
+  const fetchServices = async () => {
+    setLoading(true);
+    const token = getToken();
 
-  const handleLogout = () => {
-    localStorage.removeItem("accessToken");
-    router.push("/login"); // Redirect to login page
+    if (!token) {
+      setStatus({
+        message: "No access token found. Please login.",
+        type: "error",
+      });
+      setLoading(false);
+      return;
+    }
+
+    if (!backendUrl) {
+      setStatus({ message: "Backend URL is not configured.", type: "error" });
+      setLoading(false);
+      return;
+    }
+
+    try {
+      console.log(
+        "📡 Fetching services from:",
+        `${backendUrl}/api/services/list/`
+      );
+      const response = await fetch(
+        `${backendUrl}/api/services/list/?ordering=-id`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          cache: "no-store",
+        }
+      );
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Error ${response.status}: ${errorText}`);
+      }
+
+      const data = await response.json();
+      const list = (Array.isArray(data) ? data : data.results || []).map(
+        (service) => ({
+          ...service,
+          id: String(service.id), // Ensure id is a string
+        })
+      );
+      setServices(list);
+      console.log("✅ Services fetched:", list);
+      setStatus({ message: "", type: "" });
+    } catch (err) {
+      console.error("❌ Failed to fetch services:", err.message);
+      setStatus({
+        message: `Failed to load services: ${err.message}`,
+        type: "error",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const validateForm = () => {
+    const errors = {};
+    if (!form.title.trim()) errors.title = "Title is required";
+    if (!form.description.trim())
+      errors.description = "Description is required";
+    // Image is optional, no validation required
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
   };
 
   const handleChange = (e) => {
@@ -38,50 +114,80 @@ export default function ServiceManager() {
     if (files && files[0]) {
       setForm((prev) => ({ ...prev, image: files[0] }));
       setPreview(URL.createObjectURL(files[0]));
+      setFormErrors((prev) => ({ ...prev, image: undefined }));
     } else {
       setForm((prev) => ({ ...prev, [name]: value }));
+      setFormErrors((prev) => ({ ...prev, [name]: undefined }));
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!token) return alert("You are not authenticated.");
+    if (!validateForm()) return;
+
+    setLoading(true);
+    const token = getToken();
+    if (!token) {
+      setStatus({
+        message: "No access token found. Please login.",
+        type: "error",
+      });
+      setLoading(false);
+      return;
+    }
 
     const formData = new FormData();
     formData.append("title", form.title);
     formData.append("description", form.description);
     if (form.image) {
-      formData.append("image_icon", form.image);
+      formData.append("image_icon", form.image); // Match backend field name
     }
 
     try {
-      const res = await fetch(
-        `${backendUrl}/api/services/${editId ? `${editId}/` : ""}`,
-        {
-          method: editId ? "PUT" : "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          body: formData,
-        }
-      );
+      const url = editId
+        ? `${backendUrl}/api/services/update/${editId}/`
+        : `${backendUrl}/api/services/`;
+      console.log(`📤 Sending ${editId ? "PUT" : "POST"} to:`, url);
+      console.log("📤 FormData contents:", {
+        title: form.title,
+        description: form.description,
+        image_icon: form.image ? form.image.name : null,
+      });
+      const response = await fetch(url, {
+        method: editId ? "PUT" : "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
 
-      if (!res.ok) throw new Error("Failed to save service");
-
-      const updated = await res.json();
-      if (editId) {
-        setServices((prev) =>
-          prev.map((s) => (s.id === updated.id ? updated : s))
-        );
-        setEditId(null);
-      } else {
-        setServices((prev) => [...prev, updated]);
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("❌ Response error:", response.status, errorText);
+        throw new Error(`Error ${response.status}: ${errorText}`);
       }
 
+      const responseData = await response.json();
+      console.log("📥 Response data:", responseData);
+      setStatus({
+        message: editId
+          ? "Service updated successfully"
+          : "Service created successfully",
+        type: "success",
+      });
       setForm({ title: "", description: "", image: null });
       setPreview(null);
+      setEditId(null);
+      setFormErrors({});
+      fetchServices();
     } catch (err) {
-      console.error("Submit error:", err.message);
+      console.error("❌ Submit error:", err.message);
+      setStatus({
+        message: `Failed to save service: ${err.message}`,
+        type: "error",
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -91,212 +197,229 @@ export default function ServiceManager() {
       description: service.description,
       image: null,
     });
-    setPreview(getImageUrl(service.image_icon));
+    const imageUrl = getImageUrl(service.image_icon);
+    setPreview(imageUrl);
     setEditId(service.id);
+    setStatus({ message: "", type: "" });
+    setFormErrors({});
   };
 
   const handleDelete = async (id) => {
-    if (!token) return alert("You are not authenticated.");
+    setLoading(true);
+    const token = getToken();
+    if (!token) {
+      setStatus({
+        message: "No access token found. Please login.",
+        type: "error",
+      });
+      setLoading(false);
+      return;
+    }
 
-    const res = await fetch(`${backendUrl}/api/services/delete/${id}/`, {
-      method: "DELETE",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    try {
+      console.log(
+        `📤 Sending DELETE to: ${backendUrl}/api/services/delete/${id}/`
+      );
+      const response = await fetch(`${backendUrl}/api/services/delete/${id}/`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-    if (res.ok) {
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("❌ Delete error:", response.status, errorText);
+        throw new Error(`Error ${response.status}: ${errorText}`);
+      }
+
       setServices((prev) => prev.filter((s) => s.id !== id));
+      setStatus({ message: "Service deleted successfully", type: "success" });
+    } catch (err) {
+      console.error("❌ Delete error:", err.message);
+      setStatus({
+        message: `Failed to delete service: ${err.message}`,
+        type: "error",
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
-  return (
-    <div style={styles.container}>
-      {/* Logout button */}
-      <div style={{ textAlign: "right", marginBottom: "1rem" }}>
-        <button onClick={handleLogout} style={styles.logoutButton}>
-          Logout
-        </button>
-      </div>
+  useEffect(() => {
+    fetchServices();
+  }, []);
 
-      <h2 style={styles.header}>Manage Services</h2>
-      <form onSubmit={handleSubmit} style={styles.form}>
-        <div style={styles.inputRow}>
-          <div style={styles.inputGroup}>
-            <label style={styles.label}>Title</label>
+  return (
+    <div className={styles.container}>
+      <h1 className={styles.header}>Manage Services</h1>
+
+      {status.message && (
+        <div
+          className={`${styles.statusMessage} ${
+            styles[status.type + "Message"]
+          }`}
+        >
+          {status.message}
+        </div>
+      )}
+
+      {loading && <div className={styles.loader}>Loading...</div>}
+
+      <form
+        onSubmit={handleSubmit}
+        className={styles.form}
+        aria-label="Service form"
+      >
+        <div className={styles.inputRow}>
+          <div className={styles.inputGroup}>
+            <label htmlFor="title" className={styles.label}>
+              Title
+            </label>
             <input
+              id="title"
               name="title"
               value={form.title}
               onChange={handleChange}
-              placeholder="Service title"
-              style={styles.input}
+              placeholder="Service Title"
+              className={`${styles.input} ${
+                formErrors.title ? styles.inputError : ""
+              }`}
               required
+              aria-invalid={!!formErrors.title}
+              aria-describedby={formErrors.title ? "title-error" : undefined}
             />
+            {formErrors.title && (
+              <span id="title-error" className={styles.errorText}>
+                {formErrors.title}
+              </span>
+            )}
           </div>
-          <div style={styles.inputGroup}>
-            <label style={styles.label}>Description</label>
-            <input
+          <div className={styles.inputGroup}>
+            <label htmlFor="description" className={styles.label}>
+              Description
+            </label>
+            <textarea
+              id="description"
               name="description"
               value={form.description}
               onChange={handleChange}
-              placeholder="Service description"
-              style={styles.input}
+              placeholder="Service Description"
+              className={`${styles.input} ${
+                formErrors.description ? styles.inputError : ""
+              }`}
               required
+              aria-invalid={!!formErrors.description}
+              aria-describedby={
+                formErrors.description ? "description-error" : undefined
+              }
             />
+            {formErrors.description && (
+              <span id="description-error" className={styles.errorText}>
+                {formErrors.description}
+              </span>
+            )}
           </div>
-          <div style={styles.inputGroup}>
-            <label style={styles.label}>Image</label>
+          <div className={styles.inputGroup}>
+            <label htmlFor="image" className={styles.label}>
+              Image (Optional)
+            </label>
             <input
+              id="image"
               type="file"
               name="image"
               accept="image/*"
               onChange={handleChange}
-              style={styles.inputFile}
+              className={`${styles.inputFile} ${
+                formErrors.image ? styles.inputError : ""
+              }`}
+              aria-invalid={!!formErrors.image}
+              aria-describedby={formErrors.image ? "image-error" : undefined}
             />
+            {formErrors.image && (
+              <span id="image-error" className={styles.errorText}>
+                {formErrors.image}
+              </span>
+            )}
           </div>
         </div>
+
         {preview && (
-          <img
-            src={preview}
-            width="80"
-            alt="Preview"
-            style={{ marginTop: "0.5rem", borderRadius: "8px" }}
-          />
+          <div className={styles.previewContainer}>
+            <img
+              src={preview}
+              alt="Image preview"
+              className={styles.previewImage}
+              onError={(e) => (e.currentTarget.src = "/fallback-image.jpg")}
+            />
+          </div>
         )}
-        <button type="submit" style={styles.button}>
-          {editId ? "Update" : "Add"} Service
+
+        <button
+          type="submit"
+          className={styles.submitButton}
+          disabled={loading}
+        >
+          {editId ? "Update Service" : "Add New Service"}
         </button>
       </form>
 
-      <table style={styles.table}>
-        <thead>
-          <tr>
-            <th style={styles.th}>Image</th>
-            <th style={styles.th}>Title</th>
-            <th style={styles.th}>Description</th>
-            <th style={styles.th}>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {services.map((s) => (
-            <tr key={s.id}>
-              <td style={styles.td}>
-                <img
-                  src={getImageUrl(s.image_icon)}
-                  width="60"
-                  alt="service"
-                  style={{ borderRadius: "8px" }}
-                />
-              </td>
-              <td style={styles.td}>{s.title}</td>
-              <td style={styles.td}>{s.description}</td>
-              <td style={styles.td}>
-                <button onClick={() => handleEdit(s)} style={styles.editButton}>
-                  Edit
-                </button>
-                <button
-                  onClick={() => handleDelete(s.id)}
-                  style={styles.deleteButton}
-                >
-                  Delete
-                </button>
-              </td>
+      <div className={styles.tableContainer}>
+        <table className={styles.table}>
+          <thead>
+            <tr>
+              <th className={styles.th}>Image</th>
+              <th className={styles.th}>Title</th>
+              <th className={styles.th}>Description</th>
+              <th className={styles.th}>Actions</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {services.map((service) => (
+              <tr key={service.id} className={styles.tr}>
+                <td className={styles.td}>
+                  {getImageUrl(service.image_icon) ? (
+                    <img
+                      src={getImageUrl(service.image_icon)}
+                      alt={service.title}
+                      className={styles.tableImage}
+                      onError={(e) =>
+                        (e.currentTarget.src = "/fallback-image.jpg")
+                      }
+                    />
+                  ) : (
+                    <span>No image available</span>
+                  )}
+                </td>
+                <td className={styles.td}>{service.title}</td>
+                <td className={styles.td}>{service.description}</td>
+                <td className={styles.td}>
+                  <div className={styles.actionButtons}>
+                    <button
+                      onClick={() => handleEdit(service)}
+                      className={styles.editButton}
+                      aria-label={`Edit ${service.title}`}
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => handleDelete(service.id)}
+                      className={styles.deleteButton}
+                      aria-label={`Delete ${service.title}`}
+                      disabled={loading}
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        {services.length === 0 && !loading && (
+          <p className={styles.noData}>No services found.</p>
+        )}
+      </div>
     </div>
   );
 }
-
-const styles = {
-  container: {
-    padding: "2rem",
-    border: "1px solid #ccc",
-    borderRadius: "12px",
-    marginBottom: "3rem",
-  },
-  header: {
-    textAlign: "center",
-    fontSize: "1.8rem",
-    marginBottom: "1.5rem",
-  },
-  form: {
-    marginBottom: "2rem",
-  },
-  inputRow: {
-    display: "flex",
-    gap: "1.5rem",
-    flexWrap: "wrap",
-    marginBottom: "1rem",
-  },
-  inputGroup: {
-    display: "flex",
-    flexDirection: "column",
-    flex: 1,
-  },
-  label: {
-    marginBottom: "0.5rem",
-    fontWeight: "600",
-  },
-  input: {
-    padding: "0.6rem",
-    border: "1px solid #ccc",
-    borderRadius: "6px",
-  },
-  inputFile: {
-    padding: "0.3rem",
-    border: "1px solid #ccc",
-    borderRadius: "6px",
-  },
-  button: {
-    marginTop: "1rem",
-    backgroundColor: "#0070f3",
-    color: "#fff",
-    border: "none",
-    padding: "0.8rem 2rem",
-    borderRadius: "6px",
-    fontWeight: "600",
-    cursor: "pointer",
-  },
-  table: {
-    width: "100%",
-    borderCollapse: "collapse",
-  },
-  th: {
-    textAlign: "left",
-    padding: "0.75rem",
-    backgroundColor: "#f5f5f5",
-  },
-  td: {
-    padding: "0.75rem",
-    borderBottom: "1px solid #ddd",
-  },
-  editButton: {
-    marginRight: "0.5rem",
-    backgroundColor: "#17a2b8",
-    color: "#fff",
-    border: "none",
-    padding: "0.4rem 1rem",
-    borderRadius: "4px",
-    cursor: "pointer",
-  },
-  deleteButton: {
-    backgroundColor: "#dc3545",
-    color: "#fff",
-    border: "none",
-    padding: "0.4rem 1rem",
-    borderRadius: "4px",
-    cursor: "pointer",
-  },
-  logoutButton: {
-    backgroundColor: "#f44336",
-    color: "#fff",
-    border: "none",
-    padding: "0.5rem 0.5rem",
-    borderRadius: "6px",
-    fontWeight: "600",
-    cursor: "pointer",
-  },
-};
-

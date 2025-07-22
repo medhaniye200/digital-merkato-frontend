@@ -18,6 +18,19 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         />
         {/* Font Awesome */}
         <link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+/>
+<head>
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    integrity="sha512-ZtQxJINrRWxGzCn2fLJd0VPb4us5U+6RGGLqfVhAGH8ZRpq2+z7TxzFGfTKNvZlGv2Xpqx4eLb9uxytY30hvTg=="
+    crossOrigin="anonymous"
+    referrerPolicy="no-referrer"
+  />
+</head>
+        <link
           rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
           integrity="sha512-papbXTr4fVtr7JHBYA14b1QyI5Mq0MS8pHxPFeZDy+3zJqYZvxRc2ZoFF57cDPPGTysXoZ4xmG8iY7K05u6B0w=="

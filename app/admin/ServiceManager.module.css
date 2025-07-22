@@ -1,0 +1,249 @@
+
+.container {
+  padding: 2rem;
+  max-width: 1280px;
+  margin: 0 auto;
+  background-color: #f9fafb;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.header {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.statusMessage {
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  font-size: 1rem;
+  font-weight: 500;
+  text-align: center;
+}
+
+.successMessage {
+  background-color: #ecfdf5;
+  color: #059669;
+  border: 1px solid #6ee7b7;
+}
+
+.errorMessage {
+  background-color: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #f87171;
+}
+
+.loader {
+  text-align: center;
+  font-size: 1rem;
+  color: #4b5563;
+  margin: 2rem 0;
+}
+
+.form {
+  background: #ffffff;
+  padding: 2rem;
+  border-radius: 12px;
+  margin-bottom: 2rem;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.inputRow {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+}
+
+.label {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 0.5rem;
+}
+
+.input,
+.textarea {
+  width: 100%;
+  padding: 0.875rem;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  background-color: #f9fafb;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.input:focus,
+.textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.inputError {
+  border-color: #dc2626;
+}
+
+.errorText {
+  color: #dc2626;
+  font-size: 0.85rem;
+  margin-top: 0.25rem;
+}
+
+.inputFile {
+  width: 100%;
+  padding: 0.5rem;
+  font-size: 0.95rem;
+}
+
+.previewContainer {
+  margin-top: 1rem;
+  display: flex;
+  justify-content: center;
+}
+
+.previewImage {
+  max-width: 150px;
+  max-height: 150px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  object-fit: cover;
+}
+
+.submitButton {
+  background-color: #3b82f6;
+  color: #ffffff;
+  border: none;
+  padding: 0.875rem 1.5rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.submitButton:hover {
+  background-color: #2563eb;
+  transform: translateY(-1px);
+}
+
+.submitButton:disabled {
+  background-color: #9ca3af;
+  cursor: not-allowed;
+}
+
+.tableContainer {
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  overflow-x: auto;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.th {
+  padding: 1rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #374151;
+  background-color: #f3f4f6;
+  text-align: left;
+}
+
+.td {
+  padding: 1rem;
+  font-size: 0.95rem;
+  color: #4b5563;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.tableImage {
+  max-width: 80px;
+  max-height: 80px;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
+  object-fit: cover;
+}
+
+.actionButtons {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.editButton,
+.deleteButton {
+  padding: 0.5rem 1.25rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.editButton {
+  background-color: #10b981;
+  color: #ffffff;
+}
+
+.editButton:hover {
+  background-color: #059669;
+  transform: translateY(-1px);
+}
+
+.deleteButton {
+  background-color: #ef4444;
+  color: #ffffff;
+}
+
+.deleteButton:hover {
+  background-color: #dc2626;
+  transform: translateY(-1px);
+}
+
+.deleteButton:disabled {
+  background-color: #9ca3af;
+  cursor: not-allowed;
+}
+
+.noData {
+  text-align: center;
+  color: #6b7280;
+  padding: 2rem;
+  font-size: 1rem;
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+  }
+
+  .inputRow {
+    grid-template-columns: 1fr;
+  }
+
+  .th,
+  .td {
+    padding: 0.75rem;
+    font-size: 0.9rem;
+  }
+
+  .tableImage {
+    max-width: 60px;
+    max-height: 60px;
+  }
+}

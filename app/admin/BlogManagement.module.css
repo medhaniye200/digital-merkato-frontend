@@ -1,0 +1,288 @@
+.tabSection {
+  margin-bottom: 20px;
+}
+
+.tabTitle {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: #1a1a1a;
+}
+
+.tabContent {
+  padding: 15px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  background-color: #fafafa;
+}
+
+.blogNav {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.navButton {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  background-color: #e0e0e0;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.navButton.activeNav {
+  background-color: #1976d2;
+  color: #fff;
+}
+
+.createBlog {
+  max-width: 600px;
+}
+
+.formTitle {
+  font-size: 1.5rem;
+  margin-bottom: 15px;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.input, .textarea {
+  padding: 8px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.textarea {
+  min-height: 150px;
+  resize: vertical;
+}
+
+.dropdownGroup {
+  display: flex;
+  gap: 10px;
+}
+
+.dropdown {
+  padding: 8px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.buttonGroup {
+  display: flex;
+  gap: 10px;
+}
+
+.saveButton, .cancelButton, .actionButton {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.saveButton {
+  background-color: #1976d2;
+  color: #fff;
+}
+
+.saveButton:hover {
+  background-color: #1565c0;
+}
+
+.cancelButton {
+  background-color: #d32f2f;
+  color: #fff;
+}
+
+.cancelButton:hover {
+  background-color: #b71c1c;
+}
+
+.actionButton {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.editButton {
+  background-color: #00bcd4; /* Cyan for Edit */
+  color: #fff;
+}
+
+.editButton:hover {
+  background-color: #00acc1;
+}
+
+.deleteButton {
+  background-color: #f44336; /* Red for Delete */
+  color: #fff;
+}
+
+.deleteButton:hover {
+  background-color: #d32f2f;
+}
+
+.toggleButton {
+  background-color: #ffca28; /* Yellow for Toggle Status */
+  color: #fff;
+}
+
+.toggleButton:hover {
+  background-color: #ffb300;
+}
+
+.searchFilterContainer {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.filterDropdownContainer {
+  min-width: 150px;
+}
+
+.filterDropdown {
+  padding: 8px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  font-size: 1rem;
+  width: 100%;
+  background-color: #fff;
+}
+
+.searchInputContainer {
+  display: flex;
+  gap: 10px;
+  flex-grow: 1;
+  min-width: 200px;
+}
+
+.searchInput {
+  padding: 8px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  font-size: 1rem;
+  flex-grow: 1;
+}
+
+.clearButton {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 4px;
+  background-color: #e0e0e0;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.clearButton:hover {
+  background-color: #bdbdbd;
+}
+
+.blogList {
+  margin-bottom: 20px;
+}
+
+.blogRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  background-color: #fff;
+  margin-bottom: 10px;
+  transition: box-shadow 0.2s ease-in-out;
+}
+
+.blogRow:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.blogContent {
+  flex-grow: 1;
+}
+
+.blogTitle {
+  margin: 0;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.statusBadge {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  color: #fff;
+}
+
+.draft {
+  background-color: #9e9e9e; /* Gray for draft */
+}
+
+.published {
+  background-color: #4caf50; /* Green for published */
+}
+
+.blogPreview {
+  margin: 5px 0;
+  color: #555;
+  font-size: 0.95rem;
+}
+
+.blogDate {
+  margin: 5px 0;
+  color: #757575;
+  font-size: 0.85rem;
+}
+
+.actionButtons {
+  display: flex;
+  gap: 10px;
+}
+
+.loader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  font-size: 1rem;
+  color: #555;
+}
+
+.pagination {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.pagination button {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 4px;
+  background-color: #1976d2;
+  color: #fff;
+  cursor: pointer;
+}
+
+.pagination button:disabled {
+  background-color: #e0e0e0;
+  cursor: not-allowed;
+}
+
+.pagination button:hover:not(:disabled) {
+  background-color: #1565c0;
+}

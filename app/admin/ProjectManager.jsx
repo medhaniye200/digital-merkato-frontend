@@ -1,32 +1,53 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import styles from "./ProjectManager.module.css";
 
 export default function ProjectManager() {
   const [projects, setProjects] = useState([]);
   const [form, setForm] = useState({ title: "", description: "", image: null });
   const [preview, setPreview] = useState(null);
   const [editId, setEditId] = useState(null);
-  const [token, setToken] = useState(null); // New state for token
-
+  const [token, setToken] = useState(null);
+  const [status, setStatus] = useState({ message: "", type: "" });
   const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+  const router = useRouter();
 
   const getImageUrl = (path) => {
     if (!path) return "";
     if (path.startsWith("http")) return path;
     return `${backendUrl}/media/${path.replace(/^\/?media\/?/, "")}`;
   };
-
   useEffect(() => {
-    // Get token from localStorage
-    const storedToken = localStorage.getItem("accessToken"); // adjust the key if different
+    const storedToken = localStorage.getItem("accessToken");
     setToken(storedToken);
 
-    // Fetch projects
-    fetch(`${backendUrl}/api/projects/list/`)
-      .then((res) => res.json())
-      .then(setProjects)
-      .catch((err) => console.error("Fetch error:", err));
+    fetch(`${backendUrl}/api/projects/list/`, {
+      headers: {
+        Authorization: `Bearer ${storedToken}`,
+      },
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to fetch projects");
+        return res.json();
+      })
+      .then((data) => {
+        console.log("Fetched project data:", data); // 👀 Debug: inspect response
+        const projectArray = Array.isArray(data)
+          ? data
+          : data.results || data.projects || data.data || [];
+
+        if (!Array.isArray(projectArray)) {
+          throw new Error("Projects data is not an array");
+        }
+
+        setProjects(projectArray);
+      })
+      .catch((err) => {
+        console.error("Fetch error:", err);
+        setStatus({ message: "Failed to load projects", type: "error" });
+      });
   }, []);
 
   const handleChange = (e) => {
@@ -41,7 +62,10 @@ export default function ProjectManager() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!token) return alert("You are not authenticated.");
+    if (!token) {
+      setStatus({ message: "You are not authenticated", type: "error" });
+      return;
+    }
 
     const formData = new FormData();
     formData.append("title", form.title);
@@ -52,7 +76,9 @@ export default function ProjectManager() {
 
     try {
       const res = await fetch(
-        `${backendUrl}/api/projects/${editId ? `${editId}/` : ""}`,
+        `${backendUrl}${
+          editId ? `/api/projects/update/${editId}/` : `/api/projects/`
+        }`,
         {
           method: editId ? "PUT" : "POST",
           headers: {
@@ -70,14 +96,20 @@ export default function ProjectManager() {
           prev.map((p) => (p.id === updated.id ? updated : p))
         );
         setEditId(null);
+        setStatus({ message: "Project updated successfully", type: "success" });
       } else {
         setProjects((prev) => [...prev, updated]);
+        setStatus({ message: "Project added successfully", type: "success" });
       }
 
       setForm({ title: "", description: "", image: null });
       setPreview(null);
     } catch (err) {
       console.error("Submit error:", err.message);
+      setStatus({
+        message: err.message || "Failed to save project",
+        type: "error",
+      });
     }
   };
 
@@ -89,197 +121,142 @@ export default function ProjectManager() {
     });
     setPreview(getImageUrl(project.image_icon));
     setEditId(project.id);
+    setStatus({ message: "", type: "" });
   };
 
   const handleDelete = async (id) => {
-    if (!token) return alert("You are not authenticated.");
+    if (!token) {
+      setStatus({ message: "You are not authenticated", type: "error" });
+      return;
+    }
 
-    const res = await fetch(`${backendUrl}/api/projects/delete/${id}/`, {
-      method: "DELETE",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    try {
+      const res = await fetch(`${backendUrl}/api/projects/delete/${id}/`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-    if (res.ok) {
-      setProjects((prev) => prev.filter((p) => p.id !== id));
+      if (res.ok) {
+        setProjects((prev) => prev.filter((p) => p.id !== id));
+        setStatus({ message: "Project deleted successfully", type: "success" });
+      } else {
+        throw new Error("Failed to delete project");
+      }
+    } catch (err) {
+      console.error("Delete error:", err.message);
+      setStatus({
+        message: err.message || "Failed to delete project",
+        type: "error",
+      });
     }
   };
 
   return (
-    <div style={styles.container}>
-      <h2 style={styles.header}>Manage Projects</h2>
-      <form onSubmit={handleSubmit} style={styles.form}>
-        <div style={styles.inputRow}>
-          <div style={styles.inputGroup}>
-            <label style={styles.label}>Title</label>
+    <div className={styles.container}>
+      <div className={styles.headerRow}></div>
+
+      {status.message && (
+        <div
+          className={`${styles.statusMessage} ${
+            styles[`${status.type}Message`]
+          }`}
+        >
+          {status.message}
+        </div>
+      )}
+
+      <form onSubmit={handleSubmit} className={styles.form}>
+        <div className={styles.inputRow}>
+          <div className={styles.inputGroup}>
+            <label className={styles.label}>Title</label>
             <input
               name="title"
               value={form.title}
               onChange={handleChange}
               placeholder="Project title"
-              style={styles.input}
+              className={styles.input}
               required
             />
           </div>
-          <div style={styles.inputGroup}>
-            <label style={styles.label}>Description</label>
+          <div className={styles.inputGroup}>
+            <label className={styles.label}>Description</label>
             <input
               name="description"
               value={form.description}
               onChange={handleChange}
               placeholder="Project description"
-              style={styles.input}
+              className={styles.input}
               required
             />
           </div>
-          <div style={styles.inputGroup}>
-            <label style={styles.label}>Image</label>
+          <div className={styles.inputGroup}>
+            <label className={styles.label}>Image</label>
             <input
               type="file"
               name="image"
               accept="image/*"
               onChange={handleChange}
-              style={styles.inputFile}
+              className={styles.inputFile}
             />
           </div>
         </div>
+
         {preview && (
-          <img
-            src={preview}
-            width="80"
-            alt="Preview"
-            style={{ marginTop: "0.5rem", borderRadius: "8px" }}
-          />
+          <div className={styles.previewContainer}>
+            <img src={preview} alt="Preview" className={styles.previewImage} />
+          </div>
         )}
-        <button type="submit" style={styles.button}>
-          {editId ? "Update" : "Add"} Project
+
+        <button type="submit" className={styles.submitButton}>
+          {editId ? "Update Project" : "Add New Project"}
         </button>
       </form>
 
-      <table style={styles.table}>
-        <thead>
-          <tr>
-            <th style={styles.th}>Image</th>
-            <th style={styles.th}>Title</th>
-            <th style={styles.th}>Description</th>
-            <th style={styles.th}>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {projects.map((p) => (
-            <tr key={p.id}>
-              <td style={styles.td}>
-                <img
-                  src={getImageUrl(p.image_icon)}
-                  width="60"
-                  alt="project"
-                  style={{ borderRadius: "8px" }}
-                />
-              </td>
-              <td style={styles.td}>{p.title}</td>
-              <td style={styles.td}>{p.description}</td>
-              <td style={styles.td}>
-                <button
-                  onClick={() => handleEdit(p)}
-                  style={styles.editButton}
-                >
-                  Edit
-                </button>
-                <button
-                  onClick={() => handleDelete(p.id)}
-                  style={styles.deleteButton}
-                >
-                  Delete
-                </button>
-              </td>
+      <div className={styles.tableContainer}>
+        <table className={styles.table}>
+          <thead>
+            <tr>
+              <th className={styles.th}>Image</th>
+              <th className={styles.th}>Title</th>
+              <th className={styles.th}>Description</th>
+              <th className={styles.th}>Actions</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {projects.map((p) => (
+              <tr key={p.id} className={styles.tr}>
+                <td className={styles.td}>
+                  <img
+                    src={getImageUrl(p.image_icon)}
+                    alt={p.title}
+                    className={styles.tableImage}
+                  />
+                </td>
+                <td className={styles.td}>{p.title}</td>
+                <td className={styles.td}>{p.description}</td>
+                <td className={styles.td}>
+                  <div className={styles.actionButtons}>
+                    <button
+                      onClick={() => handleEdit(p)}
+                      className={styles.editButton}
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => handleDelete(p.id)}
+                      className={styles.deleteButton}
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
-
-const styles = {
-  container: {
-    padding: "2rem",
-    border: "1px solid #ccc",
-    borderRadius: "12px",
-    marginBottom: "3rem",
-  },
-  header: {
-    textAlign: "center",
-    fontSize: "1.8rem",
-    marginBottom: "1.5rem",
-  },
-  form: {
-    marginBottom: "2rem",
-  },
-  inputRow: {
-    display: "flex",
-    gap: "1.5rem",
-    flexWrap: "wrap",
-    marginBottom: "1rem",
-  },
-  inputGroup: {
-    display: "flex",
-    flexDirection: "column",
-    flex: 1,
-  },
-  label: {
-    marginBottom: "0.5rem",
-    fontWeight: "600",
-  },
-  input: {
-    padding: "0.6rem",
-    border: "1px solid #ccc",
-    borderRadius: "6px",
-  },
-  inputFile: {
-    padding: "0.3rem",
-    border: "1px solid #ccc",
-    borderRadius: "6px",
-  },
-  button: {
-    marginTop: "1rem",
-    backgroundColor: "#0070f3",
-    color: "#fff",
-    border: "none",
-    padding: "0.8rem 2rem",
-    borderRadius: "6px",
-    fontWeight: "600",
-    cursor: "pointer",
-  },
-  table: {
-    width: "100%",
-    borderCollapse: "collapse",
-  },
-  th: {
-    textAlign: "left",
-    padding: "0.75rem",
-    backgroundColor: "#f5f5f5",
-  },
-  td: {
-    padding: "0.75rem",
-    borderBottom: "1px solid #ddd",
-  },
-  editButton: {
-    marginRight: "0.5rem",
-    backgroundColor: "#17a2b8",
-    color: "#fff",
-    border: "none",
-    padding: "0.4rem 1rem",
-    borderRadius: "4px",
-    cursor: "pointer",
-  },
-  deleteButton: {
-    backgroundColor: "#dc3545",
-    color: "#fff",
-    border: "none",
-    padding: "0.4rem 1rem",
-    borderRadius: "4px",
-    cursor: "pointer",
-  },
-};
-

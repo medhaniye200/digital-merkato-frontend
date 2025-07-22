@@ -1,0 +1,198 @@
+.tabSection {
+  margin-bottom: 20px;
+}
+
+.tabTitle {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: #1a1a1a;
+}
+
+.tabContent {
+  padding: 15px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  background-color: #fafafa;
+}
+
+.searchFilterContainer {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.filterDropdownContainer {
+  min-width: 150px;
+}
+
+.filterDropdown {
+  padding: 8px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  font-size: 1rem;
+  width: 100%;
+  background-color: #fff;
+}
+
+.searchInput {
+  padding: 8px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  font-size: 1rem;
+  flex-grow: 1;
+  min-width: 200px;
+}
+
+.messagesList {
+  margin-bottom: 20px;
+}
+
+.messageRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  background-color: #fff;
+  margin-bottom: 10px;
+  transition: box-shadow 0.2s ease-in-out;
+}
+
+.messageRow:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.messageContent {
+  flex-grow: 1;
+}
+
+.messageName {
+  margin: 0;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.statusBadge {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  color: #fff;
+}
+
+.read {
+  background-color: #4caf50; /* Green for read */
+}
+
+.unread {
+  background-color: #f44336; /* Red for unread */
+}
+
+.messageEmail {
+  margin: 5px 0;
+  color: #555;
+  font-size: 0.9rem;
+}
+
+.messageText {
+  margin: 5px 0;
+  color: #757575;
+  font-size: 0.95rem;
+}
+
+.messageDate {
+  margin: 5px 0;
+  color: #757575;
+  font-size: 0.85rem;
+}
+
+.actionButtons {
+  display: flex;
+  gap: 10px;
+}
+
+.actionButton {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  background-color: #ffca28; /* Yellow for action */
+  color: #fff;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.actionButton:hover {
+  background-color: #ffb300;
+}
+
+.actionButton:focus {
+  outline: 2px solid #ffca28;
+  outline-offset: 2px;
+}
+
+.loader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  font-size: 1rem;
+  color: #555;
+}
+
+.error {
+  color: #d32f2f;
+  font-size: 1rem;
+  margin-bottom: 10px;
+}
+
+.retryButton {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 4px;
+  background-color: #1976d2;
+  color: #fff;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.retryButton:hover {
+  background-color: #1565c0;
+}
+
+.retryButton:focus {
+  outline: 2px solid #1976d2;
+  outline-offset: 2px;
+}
+.groupTitle {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin: 1.5rem 0 1rem;
+  color: #333;
+}.actionButtons {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+.actionButton {
+  padding: 0.5rem 1rem;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.actionButton:hover {
+  background-color: #0056b3;
+}
+.groupTitle {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin: 1.5rem 0 1rem;
+  color: #333;
+}

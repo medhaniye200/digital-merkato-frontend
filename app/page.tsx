@@ -1,40 +1,39 @@
 "use client";
 
 import { useEffect, useState, FormEvent } from "react";
+
 export default function Home() {
   const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
-  const [services, setServices] = useState<any[]>([]);
-  const [projects, setProjects] = useState<any[]>([]);
-  const [members, setMembers] = useState<any[]>([]);
-
+  const [services, setServices] = useState<any[]>([]); // Ensure initial state is an array
+  const [projects, setProjects] = useState<any[]>([]); // Ensure initial state is an array
+  const [members, setMembers] = useState<any[]>([]); // Ensure initial state is an array
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-
-  const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
-  };
-
-  const closeMenu = () => {
-    setIsMenuOpen(false);
-  };
-  // Scroll effect for header
-  window.addEventListener("scroll", () => {
-    const header = document.querySelector("header");
-    if (window.scrollY > 50) {
-      header.classList.add("scrolled");
-    } else {
-      header.classList.remove("scrolled");
-    }
-  });
 
   // Contact form state
   const [contactData, setContactData] = useState({
-    name: "",
+    full_name: "",
     email: "",
-    subject: "",
+    title: "",
     message: "",
   });
   const [status, setStatus] = useState<null | "success" | "error">(null);
   const [loading, setLoading] = useState(false);
+
+  const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
+  const closeMenu = () => setIsMenuOpen(false);
+
+  // Scroll effect for header
+  useEffect(() => {
+    const handleScroll = () => {
+      const header = document.querySelector("header");
+      window.scrollY > 50
+        ? header?.classList.add("scrolled")
+        : header?.classList.remove("scrolled");
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const getImageUrl = (path: string) => {
     if (!path) return "";
@@ -42,26 +41,32 @@ export default function Home() {
     return `${backendUrl}/media/${path.replace(/^\/?media\/?/, "")}`;
   };
 
+  // Fetch data
   useEffect(() => {
-    fetch(`${backendUrl}/api/services/list/`)
-      .then((res) => res.json())
-      .then((data) => setServices(data))
-      .catch((err) => console.error("Error fetching services:", err));
-  }, []);
+    const fetchData = async (endpoint: string, setData: Function) => {
+      try {
+        const res = await fetch(`${backendUrl}${endpoint}`);
+        const data = await res.json();
+        // Handle different response structures
+        if (Array.isArray(data)) {
+          setData(data); // Direct array response
+        } else if (data.results && Array.isArray(data.results)) {
+          setData(data.results); // Paginated response with results array
+        } else if (data && typeof data === "object") {
+          setData([data]); // Single object response, wrap in array
+        } else {
+          setData([]); // Fallback to empty array
+        }
+      } catch (err) {
+        console.error(`Error fetching ${endpoint}:`, err);
+        setData([]); // Set to empty array on error
+      }
+    };
 
-  useEffect(() => {
-    fetch(`${backendUrl}/api/projects/list/`)
-      .then((res) => res.json())
-      .then((data) => setProjects(data))
-      .catch((err) => console.error("Error fetching projects:", err));
-  }, []);
-
-  useEffect(() => {
-    fetch(`${backendUrl}/api/staff-members/list/`)
-      .then((res) => res.json())
-      .then((data) => setMembers(data))
-      .catch((err) => console.error("Error fetching members:", err));
-  }, []);
+    fetchData("/api/services/list/", setServices);
+    fetchData("/api/projects/list/", setProjects);
+    fetchData("/api/staff-members/list/", setMembers);
+  }, [backendUrl]);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -71,31 +76,32 @@ export default function Home() {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-
-    // Basic validation
-    if (!contactData.name || !contactData.email || !contactData.message) {
+    if (!contactData.full_name || !contactData.email || !contactData.message) {
       setStatus("error");
       return;
     }
 
     setLoading(true);
     setStatus(null);
+
     try {
-      const res = await fetch(`${backendUrl}/api/contact/submit/`, {
+      const res = await fetch(`${backendUrl}/api/create_notification/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(contactData),
       });
+
       if (res.ok) {
         setStatus("success");
-        setContactData({ name: "", email: "", subject: "", message: "" });
+        setContactData({ full_name: "", email: "", title: "", message: "" });
       } else {
         setStatus("error");
       }
     } catch (err) {
       setStatus("error");
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   return (
@@ -104,12 +110,20 @@ export default function Home() {
         <div className="nav-container">
           <h1 className="logo">Digital Merkato Technology</h1>
 
-          {/* Mobile menu button */}
-          <button className="menu-toggle" onClick={toggleMenu}>
-            <i className="fas fa-bars"></i>
+          <button
+            className="menu-toggle"
+            onClick={toggleMenu}
+            aria-expanded={isMenuOpen}
+            aria-label="Menu"
+          >
+            <span className={`menu-icon ${isMenuOpen ? "open" : ""}`}>
+              <span className="bar"></span>
+              <span className="bar"></span>
+              <span className="bar"></span>
+            </span>
           </button>
 
-          <nav className={isMenuOpen ? "open" : ""}>
+          <nav className={`${isMenuOpen ? "open" : ""}`} aria-hidden={!isMenuOpen}>
             <a href="#services" className="nav-link" onClick={closeMenu}>
               Services
             </a>
@@ -136,7 +150,7 @@ export default function Home() {
             <p>Digital solutions for modern businesses in Ethiopia.</p>
             <div className="hero-buttons">
               <a href="#services" className="animated-button">
-                digital Services
+                Our Services
               </a>
               <a href="#" className="animated-button secondary">
                 Watch Video
@@ -147,6 +161,7 @@ export default function Home() {
             <img
               src="/images/software.webp"
               alt="Business Software Solutions"
+              className="hero-img"
             />
           </div>
         </div>
@@ -159,18 +174,18 @@ export default function Home() {
           and custom business applications.
         </p>
         <div className="service-cards">
-          {services.map((s, i) => (
-            <div
-              key={i}
-              className="card"
-              style={{ animationDelay: `${i * 0.15}s` }}
-            >
-              <img
-                src={getImageUrl(s.image_icon)}
-                alt={s.title}
-                className="card-icon"
-              />
-              <h4>{s.title}</h4>B <p>{s.description}</p>
+          {Array.isArray(services) && services.map((s, i) => (
+            <div key={i} className="card" style={{ animationDelay: `${i * 0.15}s` }}>
+              <div className="image-container">
+                <img
+                  src={getImageUrl(s.image_icon)}
+                  alt={s.title}
+                  className="service-image"
+                  style={{ objectPosition: "center" }}
+                />
+              </div>
+              <h4>{s.title}</h4>
+              <p>{s.description}</p>
             </div>
           ))}
         </div>
@@ -183,17 +198,16 @@ export default function Home() {
           diverse industries.
         </p>
         <div className="project-container">
-          {projects.map((p, i) => (
-            <div
-              key={i}
-              className="project-card"
-              style={{ animationDelay: `${i * 0.15}s` }}
-            >
-              <img
-                src={getImageUrl(p.image_icon)}
-                alt={p.title}
-                className="card-icon"
-              />
+          {Array.isArray(projects) && projects.map((p, i) => (
+            <div key={i} className="project-card" style={{ animationDelay: `${i * 0.15}s` }}>
+              <div className="image-container">
+                <img
+                  src={getImageUrl(p.image_icon)}
+                  alt={p.title}
+                  className="project-image"
+                  style={{ objectPosition: "center" }}
+                />
+              </div>
               <h4>{p.title}</h4>
               <p>{p.description}</p>
             </div>
@@ -207,17 +221,16 @@ export default function Home() {
           Meet the dedicated professionals driving your digital transformation.
         </p>
         <div className="about-container">
-          {members.map((m, i) => (
-            <div
-              key={i}
-              className="about-card"
-              style={{ animationDelay: `${i * 0.15}s` }}
-            >
-              <img
-                src={getImageUrl(m.image_icon)}
-                alt={m.full_name}
-                className="card-icon"
-              />
+          {Array.isArray(members) && members.map((m, i) => (
+            <div key={i} className="about-card" style={{ animationDelay: `${i * 0.15}s` }}>
+              <div className="image-container">
+                <img
+                  src={getImageUrl(m.image_icon)}
+                  alt={m.full_name}
+                  className="member-image"
+                  style={{ objectPosition: "top center" }}
+                />
+              </div>
               <h4>{m.full_name}</h4>
               <p>{m.position}</p>
             </div>
@@ -225,54 +238,79 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="Contact" className="contact">
+      <section id="contact" className="contact">
         <h3>Contact Us</h3>
         <p>
           Have a question or want to work with us? We'd love to hear from you.
         </p>
+<div className="contact-details">
+  <div className="contact-card">
+    <div className="contact-item">
+      <i className="fas fa-envelope"></i>
+      <span>dev@digitalmerkato.com.et</span>
+    </div>
+    <div className="contact-item">
+      <i className="fas fa-phone-alt"></i>
+      <span>+251 929 078 786</span>
+    </div>
+    <div className="contact-item">
+      <i className="fab fa-telegram-plane"></i>
+      <span>@digitalmerkato</span>
+    </div>
+    <div className="contact-item">
+      <i className="fas fa-map-marker-alt"></i>
+      <span>Addis Ababa, Ethiopia</span>
+    </div>
+  </div>
+</div>
 
-        <div className="contact-details">
-          <div className="contact-card">
-            <div className="contact-item">
-              <i className="fas fa-envelope"></i>
-              <span>digitalmerkato@outlook.com</span>
-            </div>
-            <div className="contact-item">
-              <i className="fas fa-phone-alt"></i>
-              <span>+251 929 078 786</span>
-            </div>
-            <div className="contact-item">
-              <i className="fab fa-telegram-plane"></i>
-              <span>@digitalmerkato</span>
-            </div>
-            <div className="contact-item">
-              <i className="fas fa-map-marker-alt"></i>
-              <span>Addis Ababa, Ethiopia</span>
-            </div>
-          </div>
 
           <div className="contact-form">
-            <form onSubmit={(e) => e.preventDefault()}>
+            <form onSubmit={handleSubmit}>
               <input
                 type="text"
-                name="name"
+                name="full_name"
                 placeholder="Your Full Name"
+                value={contactData.full_name}
+                onChange={handleInputChange}
                 required
               />
               <input
                 type="email"
                 name="email"
                 placeholder="Your Email Address"
+                value={contactData.email}
+                onChange={handleInputChange}
                 required
               />
-              <input type="text" name="subject" placeholder="Subject" />
+              <input
+                type="text"
+                name="title"
+                placeholder="Subject"
+                value={contactData.title}
+                onChange={handleInputChange}
+              />
               <textarea
                 name="message"
                 rows={5}
                 placeholder="Your Message..."
+                value={contactData.message}
+                onChange={handleInputChange}
                 required
               ></textarea>
-              <button type="submit">Send Message</button>
+              <button type="submit" disabled={loading}>
+                {loading ? "Sending..." : "Send Message"}
+              </button>
+              {status === "success" && (
+                <div className="form-status success">
+                  Message sent successfully!
+                </div>
+              )}
+              {status === "error" && (
+                <div className="form-status error">
+                  Failed to send message. Please try again.
+                </div>
+              )}
             </form>
           </div>
         </div>
@@ -287,38 +325,26 @@ export default function Home() {
               Delivering cutting-edge ERP, POS, and custom software solutions
               for modern businesses.
             </p>
-            <p>Email: digitalmerkato@outlook.com | Phone: +251 929 078 786</p>
+            <p>Email: digitalmerkato@outlook.com</p>
+            <p>Phone: +251 929 078 786</p>
           </div>
           <div className="footer-social">
             <p>Follow Us</p>
-            <a
-              href="#"
-              aria-label="Facebook"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <i className="fab fa-facebook-f"></i>
-            </a>
-            <a
-              href="#"
-              aria-label="Telegram"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <i className="fab fa-telegram-plane"></i>
-            </a>
-            <a
-              href="#"
-              aria-label="WhatsApp"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <i className="fab fa-whatsapp"></i>
-            </a>
+            <div className="social-icons">
+              <a href="#" aria-label="Facebook">
+                <i className="fab fa-facebook-f"></i>
+              </a>
+              <a href="#" aria-label="Telegram">
+                <i className="fab fa-telegram-plane"></i>
+              </a>
+              <a href="#" aria-label="WhatsApp">
+                <i className="fab fa-whatsapp"></i>
+              </a>
+            </div>
           </div>
         </div>
         <p className="copyright">
-          &copy; 2025 Digital Merkato Technology PLC. All rights reserved.
+          © {new Date().getFullYear()} Digital Merkato Technology PLC. All rights reserved.
         </p>
       </footer>
     </>
