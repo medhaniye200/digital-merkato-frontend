@@ -1,11 +1,10 @@
 // app/layout.tsx
 import { ReactNode } from "react";
+import "./globals.css";
 
 export const metadata = {
   title: "Digital Merkato Technology PLC",
 };
-
-import "./globals.css";
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
@@ -16,27 +15,16 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap"
           rel="stylesheet"
         />
-        {/* Font Awesome */}
-        <link
-  rel="stylesheet"
-  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
-/>
-<head>
-  <link
-    rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
-    integrity="sha512-ZtQxJINrRWxGzCn2fLJd0VPb4us5U+6RGGLqfVhAGH8ZRpq2+z7TxzFGfTKNvZlGv2Xpqx4eLb9uxytY30hvTg=="
-    crossOrigin="anonymous"
-    referrerPolicy="no-referrer"
-  />
-</head>
+
+        {/* Font Awesome (latest and only once) */}
         <link
           rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-          integrity="sha512-papbXTr4fVtr7JHBYA14b1QyI5Mq0MS8pHxPFeZDy+3zJqYZvxRc2ZoFF57cDPPGTysXoZ4xmG8iY7K05u6B0w=="
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+          integrity="sha512-ZtQxJINrRWxGzCn2fLJd0VPb4us5U+6RGGLqfVhAGH8ZRpq2+z7TxzFGfTKNvZlGv2Xpqx4eLb9uxytY30hvTg=="
           crossOrigin="anonymous"
           referrerPolicy="no-referrer"
         />
+
         {/* Responsive viewport */}
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </head>

@@ -1,5 +1,7 @@
 "use client";
 
+import BlogList from "./BlogManagement";
+
 import { useEffect, useState, FormEvent } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -31,6 +33,8 @@ export default function Home() {
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
   const closeMenu = () => setIsMenuOpen(false);
+
+  
 
   // Scroll effect for header
   useEffect(() => {
@@ -175,6 +179,8 @@ export default function Home() {
           </div>
         </div>
       </div>
+      
+<BlogList />
 
       <section id="services" className="services transparent-bg">
         <h3>Our Services</h3>
