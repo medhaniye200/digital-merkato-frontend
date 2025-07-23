@@ -1,15 +1,25 @@
 "use client";
 
 import { useEffect, useState, FormEvent } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faEnvelope,
+  faPhoneAlt,
+  faMapMarkerAlt,
+} from "@fortawesome/free-solid-svg-icons";
+import {
+  faTelegramPlane,
+  faFacebookF,
+  faWhatsapp,
+} from "@fortawesome/free-brands-svg-icons";
 
 export default function Home() {
   const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
-  const [services, setServices] = useState<any[]>([]); // Ensure initial state is an array
-  const [projects, setProjects] = useState<any[]>([]); // Ensure initial state is an array
-  const [members, setMembers] = useState<any[]>([]); // Ensure initial state is an array
+  const [services, setServices] = useState<any[]>([]);
+  const [projects, setProjects] = useState<any[]>([]);
+  const [members, setMembers] = useState<any[]>([]);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  // Contact form state
   const [contactData, setContactData] = useState({
     full_name: "",
     email: "",
@@ -47,19 +57,18 @@ export default function Home() {
       try {
         const res = await fetch(`${backendUrl}${endpoint}`);
         const data = await res.json();
-        // Handle different response structures
         if (Array.isArray(data)) {
-          setData(data); // Direct array response
+          setData(data);
         } else if (data.results && Array.isArray(data.results)) {
-          setData(data.results); // Paginated response with results array
+          setData(data.results);
         } else if (data && typeof data === "object") {
-          setData([data]); // Single object response, wrap in array
+          setData([data]);
         } else {
-          setData([]); // Fallback to empty array
+          setData([]);
         }
       } catch (err) {
         console.error(`Error fetching ${endpoint}:`, err);
-        setData([]); // Set to empty array on error
+        setData([]);
       }
     };
 
@@ -97,7 +106,7 @@ export default function Home() {
       } else {
         setStatus("error");
       }
-    } catch (err) {
+    } catch {
       setStatus("error");
     } finally {
       setLoading(false);
@@ -174,20 +183,25 @@ export default function Home() {
           and custom business applications.
         </p>
         <div className="service-cards">
-          {Array.isArray(services) && services.map((s, i) => (
-            <div key={i} className="card" style={{ animationDelay: `${i * 0.15}s` }}>
-              <div className="image-container">
-                <img
-                  src={getImageUrl(s.image_icon)}
-                  alt={s.title}
-                  className="service-image"
-                  style={{ objectPosition: "center" }}
-                />
+          {Array.isArray(services) &&
+            services.map((s, i) => (
+              <div
+                key={i}
+                className="card"
+                style={{ animationDelay: `${i * 0.15}s` }}
+              >
+                <div className="image-container">
+                  <img
+                    src={getImageUrl(s.image_icon)}
+                    alt={s.title}
+                    className="service-image"
+                    style={{ objectPosition: "center" }}
+                  />
+                </div>
+                <h4>{s.title}</h4>
+                <p>{s.description}</p>
               </div>
-              <h4>{s.title}</h4>
-              <p>{s.description}</p>
-            </div>
-          ))}
+            ))}
         </div>
       </section>
 
@@ -198,121 +212,123 @@ export default function Home() {
           diverse industries.
         </p>
         <div className="project-container">
-          {Array.isArray(projects) && projects.map((p, i) => (
-            <div key={i} className="project-card" style={{ animationDelay: `${i * 0.15}s` }}>
-              <div className="image-container">
-                <img
-                  src={getImageUrl(p.image_icon)}
-                  alt={p.title}
-                  className="project-image"
-                  style={{ objectPosition: "center" }}
-                />
+          {Array.isArray(projects) &&
+            projects.map((p, i) => (
+              <div
+                key={i}
+                className="project-card"
+                style={{ animationDelay: `${i * 0.15}s` }}
+              >
+                <div className="image-container">
+                  <img
+                    src={getImageUrl(p.image_icon)}
+                    alt={p.title}
+                    className="project-image"
+                    style={{ objectPosition: "center" }}
+                  />
+                </div>
+                <h4>{p.title}</h4>
+                <p>{p.description}</p>
               </div>
-              <h4>{p.title}</h4>
-              <p>{p.description}</p>
-            </div>
-          ))}
+            ))}
         </div>
       </section>
 
       <section id="about" className="about-us transparent-bg">
         <h3>Our Team</h3>
-        <p>
-          Meet the dedicated professionals driving your digital transformation.
-        </p>
+        <p>Meet the dedicated professionals driving your digital transformation.</p>
         <div className="about-container">
-          {Array.isArray(members) && members.map((m, i) => (
-            <div key={i} className="about-card" style={{ animationDelay: `${i * 0.15}s` }}>
-              <div className="image-container">
-                <img
-                  src={getImageUrl(m.image_icon)}
-                  alt={m.full_name}
-                  className="member-image"
-                  style={{ objectPosition: "top center" }}
-                />
+          {Array.isArray(members) &&
+            members.map((m, i) => (
+              <div
+                key={i}
+                className="about-card"
+                style={{ animationDelay: `${i * 0.15}s` }}
+              >
+                <div className="image-container">
+                  <img
+                    src={getImageUrl(m.image_icon)}
+                    alt={m.full_name}
+                    className="member-image"
+                    style={{ objectPosition: "top center" }}
+                  />
+                </div>
+                <h4>{m.full_name}</h4>
+                <p>{m.position}</p>
               </div>
-              <h4>{m.full_name}</h4>
-              <p>{m.position}</p>
-            </div>
-          ))}
+            ))}
         </div>
       </section>
 
       <section id="contact" className="contact">
         <h3>Contact Us</h3>
-        <p>
-          Have a question or want to work with us? We'd love to hear from you.
-        </p>
-<div className="contact-details">
-  <div className="contact-card">
-    <div className="contact-item">
-      <i className="fas fa-envelope"></i>
-      <span>dev@digitalmerkato.com.et</span>
-    </div>
-    <div className="contact-item">
-      <i className="fas fa-phone-alt"></i>
-      <span>+251 929 078 786</span>
-    </div>
-    <div className="contact-item">
-      <i className="fab fa-telegram-plane"></i>
-      <span>@digitalmerkato</span>
-    </div>
-    <div className="contact-item">
-      <i className="fas fa-map-marker-alt"></i>
-      <span>Addis Ababa, Ethiopia</span>
-    </div>
-  </div>
-</div>
-
-
-          <div className="contact-form">
-            <form onSubmit={handleSubmit}>
-              <input
-                type="text"
-                name="full_name"
-                placeholder="Your Full Name"
-                value={contactData.full_name}
-                onChange={handleInputChange}
-                required
-              />
-              <input
-                type="email"
-                name="email"
-                placeholder="Your Email Address"
-                value={contactData.email}
-                onChange={handleInputChange}
-                required
-              />
-              <input
-                type="text"
-                name="title"
-                placeholder="Subject"
-                value={contactData.title}
-                onChange={handleInputChange}
-              />
-              <textarea
-                name="message"
-                rows={5}
-                placeholder="Your Message..."
-                value={contactData.message}
-                onChange={handleInputChange}
-                required
-              ></textarea>
-              <button type="submit" disabled={loading}>
-                {loading ? "Sending..." : "Send Message"}
-              </button>
-              {status === "success" && (
-                <div className="form-status success">
-                  Message sent successfully!
-                </div>
-              )}
-              {status === "error" && (
-                <div className="form-status error">
-                  Failed to send message. Please try again.
-                </div>
-              )}
-            </form>
+        <p>Have a question or want to work with us? We'd love to hear from you.</p>
+        <div className="contact-details">
+          <div className="contact-card">
+            <div className="contact-item">
+              <FontAwesomeIcon icon={faEnvelope} />
+              <span>dev@digitalmerkato.com.et</span>
+            </div>
+            <div className="contact-item">
+              <FontAwesomeIcon icon={faPhoneAlt} />
+              <span>+251 929 078 786</span>
+            </div>
+            <div className="contact-item">
+              <FontAwesomeIcon icon={faTelegramPlane} />
+              <span>@digitalmerkato</span>
+            </div>
+            <div className="contact-item">
+              <FontAwesomeIcon icon={faMapMarkerAlt} />
+              <span>Addis Ababa, Ethiopia</span>
+            </div>
           </div>
+        </div>
+
+        <div className="contact-form">
+          <form onSubmit={handleSubmit}>
+            <input
+              type="text"
+              name="full_name"
+              placeholder="Your Full Name"
+              value={contactData.full_name}
+              onChange={handleInputChange}
+              required
+            />
+            <input
+              type="email"
+              name="email"
+              placeholder="Your Email Address"
+              value={contactData.email}
+              onChange={handleInputChange}
+              required
+            />
+            <input
+              type="text"
+              name="title"
+              placeholder="Subject"
+              value={contactData.title}
+              onChange={handleInputChange}
+            />
+            <textarea
+              name="message"
+              rows={5}
+              placeholder="Your Message..."
+              value={contactData.message}
+              onChange={handleInputChange}
+              required
+            ></textarea>
+            <button type="submit" disabled={loading}>
+              {loading ? "Sending..." : "Send Message"}
+            </button>
+            {status === "success" && (
+              <div className="form-status success">Message sent successfully!</div>
+            )}
+            {status === "error" && (
+              <div className="form-status error">
+                Failed to send message. Please try again.
+              </div>
+            )}
+          </form>
         </div>
       </section>
 
@@ -322,8 +338,8 @@ export default function Home() {
             <h4>Digital Merkato Technology PLC</h4>
             <p>Addis Ababa, Ethiopia</p>
             <p>
-              Delivering cutting-edge ERP, POS, and custom software solutions
-              for modern businesses.
+              Delivering cutting-edge ERP, POS, and custom software solutions for
+              modern businesses.
             </p>
             <p>Email: digitalmerkato@outlook.com</p>
             <p>Phone: +251 929 078 786</p>
@@ -332,19 +348,20 @@ export default function Home() {
             <p>Follow Us</p>
             <div className="social-icons">
               <a href="#" aria-label="Facebook">
-                <i className="fab fa-facebook-f"></i>
+                <FontAwesomeIcon icon={faFacebookF} />
               </a>
               <a href="#" aria-label="Telegram">
-                <i className="fab fa-telegram-plane"></i>
+                <FontAwesomeIcon icon={faTelegramPlane} />
               </a>
               <a href="#" aria-label="WhatsApp">
-                <i className="fab fa-whatsapp"></i>
+                <FontAwesomeIcon icon={faWhatsapp} />
               </a>
             </div>
           </div>
         </div>
         <p className="copyright">
-          © {new Date().getFullYear()} Digital Merkato Technology PLC. All rights reserved.
+          © {new Date().getFullYear()} Digital Merkato Technology PLC. All rights
+          reserved.
         </p>
       </footer>
     </>

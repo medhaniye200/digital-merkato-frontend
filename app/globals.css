@@ -992,3 +992,8 @@ select {
     height: 100px;
   }
 }
+.contact {
+  display: flex;
+  gap: 2rem; /* or your desired gap size */
+  flex-wrap: wrap; /* so it wraps nicely on smaller screens */
+}
