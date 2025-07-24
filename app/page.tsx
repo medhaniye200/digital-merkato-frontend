@@ -121,7 +121,20 @@ export default function Home() {
     <>
       <header className="header">
         <div className="nav-container">
-          <h1 className="logo">Digital Merkato Technology</h1>
+          <h1 className="logo">
+  <img 
+    src="/images/logo.png" 
+    width={80} 
+    height={60} 
+    style={{ 
+      borderRadius: '50%',
+      verticalAlign: 'middle' ,
+      marginRight:"25px"
+    }}
+    alt="logo"
+  />
+  Digital Merkato Technology
+</h1>
 
           <button
             className="menu-toggle"
@@ -157,15 +170,15 @@ export default function Home() {
         <div className="hero-container">
           <div className="hero-text">
             <h2>
-              Digital Merkato digitalizes ideas into local{" "}
-              <span>business systems</span>
+              Digital Merkato digitalizes local{" "}
+              <span>business </span>
             </h2>
             <p>Digital solutions for modern businesses in Ethiopia.</p>
             <div className="hero-buttons">
               <a href="#services" className="animated-button">
                 Our Services
               </a>
-              <a href="#" className="animated-button secondary">
+              <a href="#" className="animated-button">
                 Watch Video
               </a>
             </div>

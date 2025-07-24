@@ -1,14 +1,15 @@
+
 :root {
-  --main-color: #3b82f6;
-  --dark-blue: #1e40af;
-  --light-bg: #f9fafb;
-  --card-bg: #fff;
-  --text-color: #1f2937;
-  --text-light: #6b7280;
-  --footer-bg: #1e293b;
-  --footer-text: #f9fafb;
-  --glass-bg: rgba(255, 255, 255, 0.8);
-  --border-color: #d1d5db;
+--main-color: #2563eb; /* Blue for buttons */
+  --dark-blue: #1e3a8a;  /* Darker blue */
+  --light-bg: #ffffff;   /* White background */
+  --card-bg: #ffffff;    /* White card backgrounds */
+  --text-color: #000000; /* Black text */
+  --text-light: #333333; /* Dark gray for secondary text */
+  --footer-bg: #ffffff;  /* White footer */
+  --footer-text: #000000; /* Black footer text */
+  --glass-bg: rgba(255, 255, 255, 0.8); /* Semi-transparent white */
+  --border-color: #d1d5db; /* Light gray border */
 }
 
 *,
@@ -25,14 +26,13 @@ html {
 }
 
 body {
-  background-color: var(--light-bg);
+ background-color: var(--light-bg);
   color: var(--text-color);
-  font-family: Cambria, Cochin, Georgia, Times, "Times New Roman", serif;
 }
 
 /* Header */
 header {
-  background: linear-gradient(135deg, #0f172a, #1e3a8a);
+  background: white;
   padding: 0.8rem 2rem;
   position: fixed;
   top: 0;
@@ -69,7 +69,7 @@ header.scrolled {
   background: linear-gradient(90deg, #3b82f6, #93c5fd);
   -webkit-background-clip: text;
   background-clip: text;
-  color: transparent;
+  color: black;
   cursor: pointer;
   position: relative;
   padding: 0.5rem 0;
@@ -134,21 +134,21 @@ nav {
 }
 
 .nav-link.active {
-  color: #3b82f6;
+  color: black;
   font-weight: 700;
 }
 
 .nav-link.active::after {
   width: 100%;
   opacity: 1;
-  background: #3b82f6;
+  background: black;
 }
 
 .menu-toggle {
   display: none;
   background: none;
   border: none;
-  color: white;
+  color: black;
   font-size: 1.5rem;
   cursor: pointer;
   z-index: 1001;
@@ -220,8 +220,8 @@ nav {
 /* Hero Section */
 .hero {
   margin-top: 80px;
-  background: linear-gradient(135deg, #2563eb, #3b82f6);
-  color: white;
+  background: linear-gradient(135deg, white,white);
+  color: black;
   padding: 6rem 0;
   width: 100vw;
   position: relative;
@@ -996,4 +996,34 @@ select {
   display: flex;
   gap: 2rem; /* or your desired gap size */
   flex-wrap: wrap; /* so it wraps nicely on smaller screens */
+}
+header {
+  background: white !important;
+  color: black !important;
+}
+
+header.scrolled {
+  background: white !important;
+  color: black !important;
+}
+
+footer {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+}
+.animated-button {
+  background: linear-gradient(90deg, var(--main-color), var(--dark-blue));
+  color: white;
+}
+header {
+  background: white;
+  color: black;
+}
+
+.nav-link {
+  color: black;
+}
+
+.nav-link:hover {
+  color: var(--main-color);
 }
