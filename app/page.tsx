@@ -1,6 +1,6 @@
 "use client";
 
-import Image from 'next/image';
+import Image from "next/image";
 import BlogList from "./BlogManagement";
 import { useEffect, useState, FormEvent } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -87,7 +87,10 @@ export default function Home() {
 
   // Fetch data
   useEffect(() => {
-    const fetchData = async <T,>(endpoint: string, setData: (data: T[]) => void) => {
+    const fetchData = async <T,>(
+      endpoint: string,
+      setData: (data: T[]) => void
+    ) => {
       try {
         const res = await fetch(`${backendUrl}${endpoint}`);
         const data = await res.json();
@@ -152,14 +155,14 @@ export default function Home() {
       <header className="header">
         <div className="nav-container">
           <h1 className="logo">
-            <Image 
-              src="/images/logo.png" 
-              width={80} 
-              height={60} 
-              style={{ 
-                borderRadius: '50%',
-                verticalAlign: 'middle',
-                marginRight: "25px"
+            <Image
+              src="/images/logo.png"
+              width={80}
+              height={60}
+              style={{
+                borderRadius: "50%",
+                verticalAlign: "middle",
+                marginRight: "25px",
               }}
               alt="Digital Merkato logo"
             />
@@ -179,7 +182,10 @@ export default function Home() {
             </span>
           </button>
 
-          <nav className={`${isMenuOpen ? "open" : ""}`} aria-hidden={!isMenuOpen}>
+          <nav
+            className={`${isMenuOpen ? "open" : ""}`}
+            aria-hidden={!isMenuOpen}
+          >
             <a href="#services" className="nav-link" onClick={closeMenu}>
               Services
             </a>
@@ -200,8 +206,7 @@ export default function Home() {
         <div className="hero-container">
           <div className="hero-text">
             <h2>
-              Digital Merkato digitalizes local{" "}
-              <span>business </span>
+              Digital Merkato digitalizes local <span>business </span>
             </h2>
             <p>Digital solutions for modern businesses in Ethiopia.</p>
             <div className="hero-buttons">
@@ -225,7 +230,7 @@ export default function Home() {
           </div>
         </div>
       </div>
-      
+
       <BlogList />
 
       <section id="services" className="services transparent-bg">
@@ -236,10 +241,7 @@ export default function Home() {
         </p>
         <div className="service-cards">
           {services.map((s) => (
-            <div
-              key={s.id}
-              className="card"
-            >
+            <div key={s.id} className="card">
               <div className="image-container">
                 <Image
                   src={getImageUrl(s.image_icon)}
@@ -248,6 +250,7 @@ export default function Home() {
                   height={100}
                   className="service-image"
                   style={{ objectPosition: "center" }}
+                  unoptimized={!s.image_icon.startsWith(backendUrl || "")}
                 />
               </div>
               <h4>{s.title}</h4>
@@ -265,10 +268,7 @@ export default function Home() {
         </p>
         <div className="project-container">
           {projects.map((p) => (
-            <div
-              key={p.id}
-              className="project-card"
-            >
+            <div key={p.id} className="project-card">
               <div className="image-container">
                 <Image
                   src={getImageUrl(p.image_icon)}
@@ -277,6 +277,7 @@ export default function Home() {
                   height={200}
                   className="project-image"
                   style={{ objectPosition: "center" }}
+                  unoptimized={!p.image_icon.startsWith(backendUrl || "")}
                 />
               </div>
               <h4>{p.title}</h4>
@@ -288,13 +289,12 @@ export default function Home() {
 
       <section id="about" className="about-us transparent-bg">
         <h3>Our Team</h3>
-        <p>Meet the dedicated professionals driving your digital transformation.</p>
+        <p>
+          Meet the dedicated professionals driving your digital transformation.
+        </p>
         <div className="about-container">
           {members.map((m) => (
-            <div
-              key={m.id}
-              className="about-card"
-            >
+            <div key={m.id} className="about-card">
               <div className="image-container">
                 <Image
                   src={getImageUrl(m.image_icon)}
@@ -303,6 +303,7 @@ export default function Home() {
                   height={150}
                   className="member-image"
                   style={{ objectPosition: "top center" }}
+                  unoptimized={!m.image_icon.startsWith(backendUrl || "")}
                 />
               </div>
               <h4>{m.full_name}</h4>
@@ -314,7 +315,10 @@ export default function Home() {
 
       <section id="contact" className="contact">
         <h3>Contact Us</h3>
-        <p>Have a question or want to work with us? We&apos;d love to hear from you.</p>
+        <p>
+          Have a question or want to work with us? We&apos;d love to hear from
+          you.
+        </p>
         <div className="contact-details">
           <div className="contact-card">
             <div className="contact-item">
@@ -373,7 +377,9 @@ export default function Home() {
               {loading ? "Sending..." : "Send Message"}
             </button>
             {status === "success" && (
-              <div className="form-status success">Message sent successfully!</div>
+              <div className="form-status success">
+                Message sent successfully!
+              </div>
             )}
             {status === "error" && (
               <div className="form-status error">
@@ -390,8 +396,8 @@ export default function Home() {
             <h4>Digital Merkato Technology PLC</h4>
             <p>Addis Ababa, Ethiopia</p>
             <p>
-              Delivering cutting-edge ERP, POS, and custom software solutions for
-              modern businesses.
+              Delivering cutting-edge ERP, POS, and custom software solutions
+              for modern businesses.
             </p>
             <p>Email: digitalmerkato@outlook.com</p>
             <p>Phone: +251 929 078 786</p>
@@ -412,8 +418,8 @@ export default function Home() {
           </div>
         </div>
         <p className="copyright">
-          © {new Date().getFullYear()} Digital Merkato Technology PLC. All rights
-          reserved.
+          © {new Date().getFullYear()} Digital Merkato Technology PLC. All
+          rights reserved.
         </p>
       </footer>
     </>

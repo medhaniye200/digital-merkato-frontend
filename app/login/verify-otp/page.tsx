@@ -1,10 +1,23 @@
 "use client";
 
+import { Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import styles from "./VerifyOtp.module.css";
 
-export default function VerifyOtp() {
+// Main component wrapped in Suspense
+export default function VerifyOtpPage() {
+  return (
+    <Suspense
+      fallback={<div className={styles.loading}>Loading verification...</div>}
+    >
+      <VerifyOtpContent />
+    </Suspense>
+  );
+}
+
+// Component that uses the hooks
+function VerifyOtpContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const email = searchParams.get("email") || "";
@@ -21,11 +34,14 @@ export default function VerifyOtp() {
     setMessage("");
 
     try {
-      const res = await fetch("https://api.digitalmerkato.com.et/api/verifyOTP/", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, otp }),
-      });
+      const res = await fetch(
+        "https://api.digitalmerkato.com.et/api/verifyOTP/",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, otp }),
+        }
+      );
 
       if (!res.ok) {
         throw new Error("Invalid OTP");
@@ -36,7 +52,7 @@ export default function VerifyOtp() {
       // Redirect to change password page after successful verification
       router.push(`/login/change-password?email=${encodeURIComponent(email)}`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Verification failed."); 
+      setError(err instanceof Error ? err.message : "Verification failed.");
     } finally {
       setLoading(false);
     }
@@ -56,9 +72,14 @@ export default function VerifyOtp() {
             type="text"
             className={styles.input}
             value={otp}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setOtp(e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              setOtp(e.target.value)
+            }
             placeholder="Enter 6-digit OTP"
             required
+            maxLength={6}
+            pattern="\d{6}"
+            title="Please enter a 6-digit number"
           />
         </div>
 

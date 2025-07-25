@@ -1,29 +1,46 @@
 // app/layout.tsx
-import type { Metadata } from 'next'
-import { ReactNode } from 'react'
-import './globals.css'
+import type { Metadata, Viewport } from "next";
+import { ReactNode } from "react";
+import "./globals.css";
+
+// Load fonts with next/font
+import { Poppins } from "next/font/google";
+
+const poppins = Poppins({
+  weight: ["400", "600", "700"],
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-poppins",
+});
+
+export const viewport: Viewport = {
+  themeColor: "#ffffff",
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+};
 
 export const metadata: Metadata = {
   title: {
-    default: 'Digital Merkato Technology PLC',
-    template: '%s | Digital Merkato'
+    default: "Digital Merkato Technology PLC",
+    template: "%s | Digital Merkato",
   },
-  description: 'Your technology solutions partner',
-  metadataBase: new URL('https://www.digitalmerkato.com'),
+  description: "Your technology solutions partner",
+  metadataBase: new URL("https://www.digitalmerkato.com"),
   openGraph: {
-    title: 'Digital Merkato Technology PLC',
-    description: 'Your technology solutions partner',
-    url: 'https://www.digitalmerkato.com',
-    siteName: 'Digital Merkato',
+    title: "Digital Merkato Technology PLC",
+    description: "Your technology solutions partner",
+    url: "https://www.digitalmerkato.com",
+    siteName: "Digital Merkato",
     images: [
       {
-        url: '/images/og-image.jpg',
+        url: "/images/og-image.jpg",
         width: 1200,
         height: 630,
       },
     ],
-    locale: 'en_US',
-    type: 'website',
+    locale: "en_US",
+    type: "website",
   },
   robots: {
     index: true,
@@ -31,29 +48,19 @@ export const metadata: Metadata = {
     googleBot: {
       index: true,
       follow: true,
-      'max-video-preview': -1,
-      'max-image-preview': 'large',
-      'max-snippet': -1,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
     },
   },
   icons: {
-    icon: '/favicon.ico',
-    shortcut: '/favicon-16x16.png',
-    apple: '/apple-touch-icon.png',
+    icon: "/favicon.ico",
+    shortcut: "/favicon-16x16.png",
+    apple: "/apple-touch-icon.png",
   },
-  manifest: '/site.webmanifest',
-  themeColor: '#ffffff',
-}
-
-// Load fonts with next/font
-import { Poppins } from 'next/font/google'
-
-const poppins = Poppins({
-  weight: ['400', '600', '700'],
-  subsets: ['latin'],
-  display: 'swap',
-  variable: '--font-poppins',
-})
+  manifest: "/site.webmanifest",
+  // REMOVED themeColor from here
+};
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
@@ -68,20 +75,14 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           referrerPolicy="no-referrer"
         />
 
-        {/* Responsive viewport - recommended way for Next.js */}
-        <meta
-          name="viewport"
-          content="width=device-width, initial-scale=1, viewport-fit=cover"
-        />
+        {/* REMOVED the manual viewport meta tag - Next.js handles this automatically */}
 
         {/* Favicon links */}
         <link rel="icon" href="/favicon.ico" sizes="any" />
         <link rel="icon" href="/icon.svg" type="image/svg+xml" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
       </head>
-      <body className="min-h-screen antialiased font-sans">
-        {children}
-      </body>
+      <body className="min-h-screen antialiased font-sans">{children}</body>
     </html>
-  )
+  );
 }
