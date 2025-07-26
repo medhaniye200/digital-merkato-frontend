@@ -14,7 +14,7 @@ export default function VerifyOtp() {
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
 
-  const handleOtpSubmit = async (e) => {
+  const handleOtpSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
     setError("");
@@ -27,14 +27,16 @@ export default function VerifyOtp() {
         body: JSON.stringify({ email, otp }),
       });
 
-      if (!res.ok) throw new Error("Invalid OTP");
+      if (!res.ok) {
+        throw new Error("Invalid OTP");
+      }
 
       setMessage("OTP verified successfully!");
 
       // Redirect to change password page after successful verification
       router.push(`/login/change-password?email=${encodeURIComponent(email)}`);
     } catch (err) {
-      setError(err.message || "Verification failed."); 
+      setError(err instanceof Error ? err.message : "Verification failed."); 
     } finally {
       setLoading(false);
     }
@@ -54,7 +56,7 @@ export default function VerifyOtp() {
             type="text"
             className={styles.input}
             value={otp}
-            onChange={(e) => setOtp(e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setOtp(e.target.value)}
             placeholder="Enter 6-digit OTP"
             required
           />

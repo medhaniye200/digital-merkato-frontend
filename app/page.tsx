@@ -1,7 +1,7 @@
 "use client";
 
+import Image from 'next/image';
 import BlogList from "./BlogManagement";
-
 import { useEffect, useState, FormEvent } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -15,14 +15,42 @@ import {
   faWhatsapp,
 } from "@fortawesome/free-brands-svg-icons";
 
+interface Service {
+  id: number;
+  title: string;
+  description: string;
+  image_icon: string;
+}
+
+interface Project {
+  id: number;
+  title: string;
+  description: string;
+  image_icon: string;
+}
+
+interface Member {
+  id: number;
+  full_name: string;
+  position: string;
+  image_icon: string;
+}
+
+interface ContactData {
+  full_name: string;
+  email: string;
+  title: string;
+  message: string;
+}
+
 export default function Home() {
   const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
-  const [services, setServices] = useState<any[]>([]);
-  const [projects, setProjects] = useState<any[]>([]);
-  const [members, setMembers] = useState<any[]>([]);
+  const [services, setServices] = useState<Service[]>([]);
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [members, setMembers] = useState<Member[]>([]);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  const [contactData, setContactData] = useState({
+  const [contactData, setContactData] = useState<ContactData>({
     full_name: "",
     email: "",
     title: "",
@@ -34,15 +62,17 @@ export default function Home() {
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
   const closeMenu = () => setIsMenuOpen(false);
 
-  
-
-  // Scroll effect for header
+  // Scroll effect for header - fixed version
   useEffect(() => {
     const handleScroll = () => {
       const header = document.querySelector("header");
-      window.scrollY > 50
-        ? header?.classList.add("scrolled")
-        : header?.classList.remove("scrolled");
+      if (header) {
+        if (window.scrollY > 50) {
+          header.classList.add("scrolled");
+        } else {
+          header.classList.remove("scrolled");
+        }
+      }
     };
 
     window.addEventListener("scroll", handleScroll);
@@ -57,7 +87,7 @@ export default function Home() {
 
   // Fetch data
   useEffect(() => {
-    const fetchData = async (endpoint: string, setData: Function) => {
+    const fetchData = async <T,>(endpoint: string, setData: (data: T[]) => void) => {
       try {
         const res = await fetch(`${backendUrl}${endpoint}`);
         const data = await res.json();
@@ -76,9 +106,9 @@ export default function Home() {
       }
     };
 
-    fetchData("/api/services/list/", setServices);
-    fetchData("/api/projects/list/", setProjects);
-    fetchData("/api/staff-members/list/", setMembers);
+    fetchData<Service>("/api/services/list/", setServices);
+    fetchData<Project>("/api/projects/list/", setProjects);
+    fetchData<Member>("/api/staff-members/list/", setMembers);
   }, [backendUrl]);
 
   const handleInputChange = (
@@ -122,19 +152,19 @@ export default function Home() {
       <header className="header">
         <div className="nav-container">
           <h1 className="logo">
-  <img 
-    src="/images/logo.png" 
-    width={80} 
-    height={60} 
-    style={{ 
-      borderRadius: '50%',
-      verticalAlign: 'middle' ,
-      marginRight:"25px"
-    }}
-    alt="logo"
-  />
-  Digital Merkato Technology
-</h1>
+            <Image 
+              src="/images/logo.png" 
+              width={80} 
+              height={60} 
+              style={{ 
+                borderRadius: '50%',
+                verticalAlign: 'middle',
+                marginRight: "25px"
+              }}
+              alt="Digital Merkato logo"
+            />
+            Digital Merkato Technology
+          </h1>
 
           <button
             className="menu-toggle"
@@ -184,16 +214,19 @@ export default function Home() {
             </div>
           </div>
           <div className="hero-image">
-            <img
+            <Image
               src="/images/software.webp"
               alt="Business Software Solutions"
+              width={600}
+              height={400}
               className="hero-img"
+              priority
             />
           </div>
         </div>
       </div>
       
-<BlogList />
+      <BlogList />
 
       <section id="services" className="services transparent-bg">
         <h3>Our Services</h3>
@@ -202,54 +235,54 @@ export default function Home() {
           and custom business applications.
         </p>
         <div className="service-cards">
-          {Array.isArray(services) &&
-            services.map((s, i) => (
-              <div
-                key={i}
-                className="card"
-                style={{ animationDelay: `${i * 0.15}s` }}
-              >
-                <div className="image-container">
-                  <img
-                    src={getImageUrl(s.image_icon)}
-                    alt={s.title}
-                    className="service-image"
-                    style={{ objectPosition: "center" }}
-                  />
-                </div>
-                <h4>{s.title}</h4>
-                <p>{s.description}</p>
+          {services.map((s) => (
+            <div
+              key={s.id}
+              className="card"
+            >
+              <div className="image-container">
+                <Image
+                  src={getImageUrl(s.image_icon)}
+                  alt={s.title}
+                  width={100}
+                  height={100}
+                  className="service-image"
+                  style={{ objectPosition: "center" }}
+                />
               </div>
-            ))}
+              <h4>{s.title}</h4>
+              <p>{s.description}</p>
+            </div>
+          ))}
         </div>
       </section>
 
       <section id="projects" className="projects transparent-bg">
         <h3>Our Projects</h3>
         <p>
-          Take a look at some of the innovative solutions we've crafted for
+          Take a look at some of the innovative solutions we&apos;ve crafted for
           diverse industries.
         </p>
         <div className="project-container">
-          {Array.isArray(projects) &&
-            projects.map((p, i) => (
-              <div
-                key={i}
-                className="project-card"
-                style={{ animationDelay: `${i * 0.15}s` }}
-              >
-                <div className="image-container">
-                  <img
-                    src={getImageUrl(p.image_icon)}
-                    alt={p.title}
-                    className="project-image"
-                    style={{ objectPosition: "center" }}
-                  />
-                </div>
-                <h4>{p.title}</h4>
-                <p>{p.description}</p>
+          {projects.map((p) => (
+            <div
+              key={p.id}
+              className="project-card"
+            >
+              <div className="image-container">
+                <Image
+                  src={getImageUrl(p.image_icon)}
+                  alt={p.title}
+                  width={300}
+                  height={200}
+                  className="project-image"
+                  style={{ objectPosition: "center" }}
+                />
               </div>
-            ))}
+              <h4>{p.title}</h4>
+              <p>{p.description}</p>
+            </div>
+          ))}
         </div>
       </section>
 
@@ -257,31 +290,31 @@ export default function Home() {
         <h3>Our Team</h3>
         <p>Meet the dedicated professionals driving your digital transformation.</p>
         <div className="about-container">
-          {Array.isArray(members) &&
-            members.map((m, i) => (
-              <div
-                key={i}
-                className="about-card"
-                style={{ animationDelay: `${i * 0.15}s` }}
-              >
-                <div className="image-container">
-                  <img
-                    src={getImageUrl(m.image_icon)}
-                    alt={m.full_name}
-                    className="member-image"
-                    style={{ objectPosition: "top center" }}
-                  />
-                </div>
-                <h4>{m.full_name}</h4>
-                <p>{m.position}</p>
+          {members.map((m) => (
+            <div
+              key={m.id}
+              className="about-card"
+            >
+              <div className="image-container">
+                <Image
+                  src={getImageUrl(m.image_icon)}
+                  alt={m.full_name}
+                  width={150}
+                  height={150}
+                  className="member-image"
+                  style={{ objectPosition: "top center" }}
+                />
               </div>
-            ))}
+              <h4>{m.full_name}</h4>
+              <p>{m.position}</p>
+            </div>
+          ))}
         </div>
       </section>
 
       <section id="contact" className="contact">
         <h3>Contact Us</h3>
-        <p>Have a question or want to work with us? We'd love to hear from you.</p>
+        <p>Have a question or want to work with us? We&apos;d love to hear from you.</p>
         <div className="contact-details">
           <div className="contact-card">
             <div className="contact-item">

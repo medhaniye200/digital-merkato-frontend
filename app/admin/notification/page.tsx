@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import styles from "./AdminDashboard.module.css";
+import styles from "../AdminDashboard.module.css";
 
 interface Notification {
   _id: string;

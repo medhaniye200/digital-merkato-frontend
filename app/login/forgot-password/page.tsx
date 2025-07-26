@@ -10,7 +10,7 @@ export default function ForgotPassword() {
   const [error, setError] = useState("");
   const router = useRouter();
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
     setError("");
@@ -27,7 +27,7 @@ export default function ForgotPassword() {
       // Redirect to OTP verification page with email as query param
       router.push(`/login/verify-otp?email=${encodeURIComponent(email)}`);
     } catch (err) {
-      setError(err.message || "Something went wrong.");
+      setError(err instanceof Error ? err.message : "Something went wrong.");
     } finally {
       setLoading(false);
     }
@@ -46,7 +46,7 @@ export default function ForgotPassword() {
             type="email"
             className={styles.input}
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
             placeholder="Enter your email"
             required
           />
