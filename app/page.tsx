@@ -4,6 +4,8 @@ import Image from "next/image";
 import BlogList from "./BlogManagement";
 import { useEffect, useState, FormEvent } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {NEXT_PUBLIC_BACKEND_URL} from "@/app/context/apiContext"
+
 import {
   faEnvelope,
   faPhoneAlt,
@@ -44,7 +46,6 @@ interface ContactData {
 }
 
 export default function Home() {
-  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
   const [services, setServices] = useState<Service[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
   const [members, setMembers] = useState<Member[]>([]);
@@ -82,7 +83,7 @@ export default function Home() {
   const getImageUrl = (path: string) => {
     if (!path) return "";
     if (path.startsWith("http")) return path;
-    return `${backendUrl}/media/${path.replace(/^\/?media\/?/, "")}`;
+    return `${NEXT_PUBLIC_BACKEND_URL}/media/${path.replace(/^\/?media\/?/, "")}`;
   };
 
   // Fetch data
@@ -92,7 +93,7 @@ export default function Home() {
       setData: (data: T[]) => void
     ) => {
       try {
-        const res = await fetch(`${backendUrl}${endpoint}`);
+        const res = await fetch(`${NEXT_PUBLIC_BACKEND_URL}${endpoint}`);
         const data = await res.json();
         if (Array.isArray(data)) {
           setData(data);
@@ -112,7 +113,7 @@ export default function Home() {
     fetchData<Service>("/api/services/list/", setServices);
     fetchData<Project>("/api/projects/list/", setProjects);
     fetchData<Member>("/api/staff-members/list/", setMembers);
-  }, [backendUrl]);
+  }, [NEXT_PUBLIC_BACKEND_URL]);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -131,7 +132,7 @@ export default function Home() {
     setStatus(null);
 
     try {
-      const res = await fetch(`${backendUrl}/api/create_notification/`, {
+      const res = await fetch(`${NEXT_PUBLIC_BACKEND_URL}/api/create_notification/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(contactData),
@@ -205,9 +206,9 @@ export default function Home() {
       <div className="hero">
         <div className="hero-container">
           <div className="hero-text">
-            <h2>
+            <h3>
               Digital Merkato digitalizes local <span>business </span>
-            </h2>
+            </h3>
             <p>Digital solutions for modern businesses in Ethiopia.</p>
             <div className="hero-buttons">
               <a href="#services" className="animated-button">
@@ -250,7 +251,7 @@ export default function Home() {
                   height={100}
                   className="service-image"
                   style={{ objectPosition: "center" }}
-                  unoptimized={!s.image_icon.startsWith(backendUrl || "")}
+                  unoptimized={!s.image_icon.startsWith(NEXT_PUBLIC_BACKEND_URL || "")}
                 />
               </div>
               <h4>{s.title}</h4>
@@ -277,7 +278,7 @@ export default function Home() {
                   height={200}
                   className="project-image"
                   style={{ objectPosition: "center" }}
-                  unoptimized={!p.image_icon.startsWith(backendUrl || "")}
+                  unoptimized={!p.image_icon.startsWith(NEXT_PUBLIC_BACKEND_URL || "")}
                 />
               </div>
               <h4>{p.title}</h4>
@@ -303,7 +304,7 @@ export default function Home() {
                   height={150}
                   className="member-image"
                   style={{ objectPosition: "top center" }}
-                  unoptimized={!m.image_icon.startsWith(backendUrl || "")}
+                  unoptimized={!m.image_icon.startsWith(NEXT_PUBLIC_BACKEND_URL || "")}
                 />
               </div>
               <h4>{m.full_name}</h4>

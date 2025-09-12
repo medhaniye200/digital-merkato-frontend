@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import styles from './Notifications.module.css';
+import {NEXT_PUBLIC_BACKEND_URL} from "@/app/context/apiContext"
 
 interface Notification {
   id: string;
@@ -25,7 +26,7 @@ export default function AdminNotifications() {
   const [searchQuery, setSearchQuery] = useState('');
   const [timeFilter, setTimeFilter] = useState<'all' | 'recent' | 'thisWeek' | 'older'>('all');
 
-  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://api.digitalmerkato.com.et';
+  // const NEXT_PUBLIC_BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://api.digitalmerkato.com.et';
 
   const getToken = (): string | null => {
     const token = localStorage.getItem("accessToken");
@@ -43,13 +44,13 @@ export default function AdminNotifications() {
       return;
     }
 
-    if (!backendUrl) {
+    if (!NEXT_PUBLIC_BACKEND_URL) {
       setError("Backend URL is not configured.");
       setLoading(false);
       return;
     }
 
-    let url = `${backendUrl}/api/notifications/list/?ordering=-created_at`;
+    let url = `${NEXT_PUBLIC_BACKEND_URL}/api/notifications/list/?ordering=-created_at`;
     if (searchQuery) {
       url += `&search=${encodeURIComponent(searchQuery)}`;
     }
@@ -84,7 +85,7 @@ export default function AdminNotifications() {
     } finally {
       setLoading(false);
     }
-  }, [searchQuery, backendUrl]); // Add dependencies here
+  }, [searchQuery, NEXT_PUBLIC_BACKEND_URL]); // Add dependencies here
 
   const handleReply = (email: string): void => {
     const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(email)}`;

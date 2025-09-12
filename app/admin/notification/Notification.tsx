@@ -17,9 +17,9 @@ export default function AdminNotifications() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+    const NEXT_PUBLIC_BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
-    if (!backendUrl) {
+    if (!NEXT_PUBLIC_BACKEND_URL) {
       setError("Backend URL is not defined");
       setLoading(false);
       return;
@@ -34,7 +34,7 @@ export default function AdminNotifications() {
       }
 
       try {
-        const response = await fetch(`${backendUrl}/api/notifications/list/`, {
+        const response = await fetch(`${NEXT_PUBLIC_BACKEND_URL}/api/notifications/list/`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

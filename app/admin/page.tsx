@@ -1,4 +1,6 @@
 "use client";
+import {NEXT_PUBLIC_BACKEND_URL} from "@/app/context/apiContext"
+
 import {
   FaBell,
   FaRegNewspaper,
@@ -56,12 +58,12 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(false);
   const [toggledStatuses, setToggledStatuses] = useState<Record<string, BlogStatus>>({});
 
-  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+  // const NEXT_PUBLIC_BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL
 
   const fetchBlogs = useCallback(async (pageNum: number = 1): Promise<void> => {
     setLoading(true);
     try {
-      let url = `${backendUrl}/api/blogs/?ordering=-created_at&page=${pageNum}`;
+      let url = `${NEXT_PUBLIC_BACKEND_URL}/api/blogs/?ordering=-created_at&page=${pageNum}`;
       if (searchQuery) url += `&search=${encodeURIComponent(searchQuery)}`;
       if (blogFilter !== "all") url += `&status=${blogFilter}`;
       if (dateFilter !== "all") url += `&date_filter=${dateFilter}`;
@@ -95,7 +97,7 @@ export default function AdminDashboard() {
     } finally {
       setLoading(false);
     }
-  }, [backendUrl, searchQuery, blogFilter, dateFilter]);
+  }, [NEXT_PUBLIC_BACKEND_URL, searchQuery, blogFilter, dateFilter]);
 
   useEffect(() => {
     if (activeTab === "blog" && blogView === "view") {
@@ -141,8 +143,8 @@ export default function AdminDashboard() {
 
     try {
       const url = editingBlogId
-        ? `${backendUrl}/api/blogs/edit/${editingBlogId}/`
-        : `${backendUrl}/api/blogs/create/`;
+        ? `${NEXT_PUBLIC_BACKEND_URL}/api/blogs/edit/${editingBlogId}/`
+        : `${NEXT_PUBLIC_BACKEND_URL}/api/blogs/create/`;
       const method = editingBlogId ? "PATCH" : "POST";
 
       const response = await fetch(url, {
@@ -206,7 +208,7 @@ export default function AdminDashboard() {
 
     try {
       const response = await fetch(
-        `${backendUrl}/api/blogs/delete/${blogId}/`,
+        `${NEXT_PUBLIC_BACKEND_URL}/api/blogs/delete/${blogId}/`,
         {
           method: "DELETE",
           headers: {
@@ -247,7 +249,7 @@ export default function AdminDashboard() {
     }
 
     try {
-      const response = await fetch(`${backendUrl}/api/blogs/edit/${blogId}/`, {
+      const response = await fetch(`${NEXT_PUBLIC_BACKEND_URL}/api/blogs/edit/${blogId}/`, {
         method: "PATCH",
         headers: {
           Authorization: `Bearer ${token}`,

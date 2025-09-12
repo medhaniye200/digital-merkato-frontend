@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import styles from "./ServiceManager.module.css";
+import {NEXT_PUBLIC_BACKEND_URL} from "@/app/context/apiContext"
 
 export default function ServiceManager() {
   const [services, setServices] = useState([]);
@@ -12,8 +13,6 @@ export default function ServiceManager() {
   const [loading, setLoading] = useState(false);
   const [formErrors, setFormErrors] = useState({});
 
-  const backendUrl =
-    process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
 
   const getToken = () => {
     const token = localStorage.getItem("accessToken");
@@ -34,7 +33,7 @@ export default function ServiceManager() {
       return path;
     }
     const normalizedPath = path.replace(/^\/?media\/?/, "");
-    const fullUrl = `${backendUrl}/media/${normalizedPath}`;
+    const fullUrl = `${NEXT_PUBLIC_BACKEND_URL}/media/${normalizedPath}`;
     console.log("🖼️ Constructed image URL:", fullUrl);
     return fullUrl;
   };
@@ -52,7 +51,7 @@ export default function ServiceManager() {
       return;
     }
 
-    if (!backendUrl) {
+    if (!NEXT_PUBLIC_BACKEND_URL) {
       setStatus({ message: "Backend URL is not configured.", type: "error" });
       setLoading(false);
       return;
@@ -61,10 +60,10 @@ export default function ServiceManager() {
     try {
       console.log(
         "📡 Fetching services from:",
-        `${backendUrl}/api/services/list/`
+        `${NEXT_PUBLIC_BACKEND_URL}/api/services/list/`
       );
       const response = await fetch(
-        `${backendUrl}/api/services/list/?ordering=-id`,
+        `${NEXT_PUBLIC_BACKEND_URL}/api/services/list/?ordering=-id`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -145,8 +144,8 @@ export default function ServiceManager() {
 
     try {
       const url = editId
-        ? `${backendUrl}/api/services/update/${editId}/`
-        : `${backendUrl}/api/services/`;
+        ? `${NEXT_PUBLIC_BACKEND_URL}/api/services/update/${editId}/`
+        : `${NEXT_PUBLIC_BACKEND_URL}/api/services/`;
       console.log(`📤 Sending ${editId ? "PUT" : "POST"} to:`, url);
       console.log("📤 FormData contents:", {
         title: form.title,
@@ -218,9 +217,9 @@ export default function ServiceManager() {
 
     try {
       console.log(
-        `📤 Sending DELETE to: ${backendUrl}/api/services/delete/${id}/`
+        `📤 Sending DELETE to: ${NEXT_PUBLIC_BACKEND_URL}/api/services/delete/${id}/`
       );
-      const response = await fetch(`${backendUrl}/api/services/delete/${id}/`, {
+      const response = await fetch(`${NEXT_PUBLIC_BACKEND_URL}/api/services/delete/${id}/`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,

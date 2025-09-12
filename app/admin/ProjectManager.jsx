@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import styles from "./ProjectManager.module.css";
-
+import {NEXT_PUBLIC_BACKEND_URL} from "@/app/context/apiContext"
 export default function ProjectManager() {
   const [projects, setProjects] = useState([]);
   const [form, setForm] = useState({ title: "", description: "", image: null });
@@ -11,19 +11,18 @@ export default function ProjectManager() {
   const [editId, setEditId] = useState(null);
   const [token, setToken] = useState(null);
   const [status, setStatus] = useState({ message: "", type: "" });
-  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
   const router = useRouter();
 
   const getImageUrl = (path) => {
     if (!path) return "";
     if (path.startsWith("http")) return path;
-    return `${backendUrl}/media/${path.replace(/^\/?media\/?/, "")}`;
+    return `${NEXT_PUBLIC_BACKEND_URL}/media/${path.replace(/^\/?media\/?/, "")}`;
   };
   useEffect(() => {
     const storedToken = localStorage.getItem("accessToken");
     setToken(storedToken);
 
-    fetch(`${backendUrl}/api/projects/list/`, {
+    fetch(`${NEXT_PUBLIC_BACKEND_URL}/api/projects/list/`, {
       headers: {
         Authorization: `Bearer ${storedToken}`,
       },
@@ -76,7 +75,7 @@ export default function ProjectManager() {
 
     try {
       const res = await fetch(
-        `${backendUrl}${
+        `${NEXT_PUBLIC_BACKEND_URL}${
           editId ? `/api/projects/update/${editId}/` : `/api/projects/`
         }`,
         {
@@ -131,7 +130,7 @@ export default function ProjectManager() {
     }
 
     try {
-      const res = await fetch(`${backendUrl}/api/projects/delete/${id}/`, {
+      const res = await fetch(`${NEXT_PUBLIC_BACKEND_URL}/api/projects/delete/${id}/`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,

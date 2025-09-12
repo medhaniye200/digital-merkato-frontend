@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import Head from "next/head";
 import styles from "./BlogManagement.module.css";
-
+import {NEXT_PUBLIC_BACKEND_URL} from "@/app/context/apiContext"
 export default function BlogManagement() {
   const [blogs, setBlogs] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -15,12 +15,11 @@ export default function BlogManagement() {
         setLoading(true);
         setError(null);
 
-        const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
-        if (!backendUrl) {
+        if (!NEXT_PUBLIC_BACKEND_URL) {
           throw new Error("Backend URL is not configured");
         }
 
-        const response = await fetch(`${backendUrl}/api/blogs/`);
+        const response = await fetch(`${NEXT_PUBLIC_BACKEND_URL}/api/blogs/`);
         if (!response.ok) {
           throw new Error(`Request failed with status ${response.status}`);
         }
